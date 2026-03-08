@@ -1,0 +1,145 @@
+# .gjalla/.commit-attestation.yaml — Change attestation
+#
+# Written before each commit. Declares what changed across all eight
+# primitives, checks rule compliance, and explains the reasoning.
+#
+# The pre-commit hook validates the diff hash matches staged changes.
+# The post-commit hook archives it to .gjalla/attestations/<hash>.yaml.
+#
+# Workflow:
+#   1. Stage changes (git add ...)
+#   2. Compute diff hash: git diff --staged | shasum -a 256 | cut -d' ' -f1
+#   3. Read gjallastate, gjallarules for context
+#   4. Fill in this file
+#   5. git commit — hook validates, then archives
+---
+# ── Identity ──────────────────────────────────────────────────────────────────
+
+# REQUIRED — must match `git diff --staged | shasum -a 256` at commit time
+staged_diff_hash: "e3b0c44298fc1c149afbf4c8996fb924..."
+
+# REQUIRED
+timestamp: "2026-03-06T14:30:00Z"
+
+# REQUIRED — which agent/human made this change
+agent: "claude-code"
+agent_provider: "anthropic"
+agent_model: "claude-opus-4-6"
+
+# RECOMMENDED — session traceability
+agent_id: "cc_1234567890"
+agent_session_id: "session_abc123"
+
+# ── Provenance ────────────────────────────────────────────────────────────────
+# What prompted this change?
+#   type: spec | ticket | bug-fix | ad-hoc
+#   ref: path, URL, or ticket ID (omit if no concrete reference)
+
+provenance:
+  type: "spec"
+  ref: "docs/specs/rate-limiting.md"
+
+# ── Rule Compliance ───────────────────────────────────────────────────────────
+# Self-reported check against gjallarules.
+#
+# Status values:
+#   compliant       — code follows the rule
+#   not-applicable  — rule doesn't apply to this change
+#   remediated      — was non-compliant, agent fixed it
+#   needs-review    — agent can't determine compliance, human must review
+
+rules:
+  checked: true
+  applicable:
+    - id: "separation-of-concerns"
+      status: "compliant"
+    - id: "no-direct-stripe-calls"
+      status: "not-applicable"
+    - id: "api-auth-required"
+      status: "compliant"
+      note: "New rate-limit endpoint inherits auth from middleware chain"
+    - id: "no-pii-in-logs"
+      status: "remediated"
+      note: "Rate limit log initially included client email; replaced with anonymized client ID"
+
+# ── Changes ───────────────────────────────────────────────────────────────────
+# All eight primitives. Set changed: false for unchanged primitives.
+# This forces consideration of every dimension, not just the obvious one.
+
+changes:
+  architecture:
+    elements:
+      - name: "api-server"
+        change: "modified"
+        description: "Central REST API gateway"
+        fact_changes:
+          add:
+            - "Enforces token-bucket rate limiting on auth endpoints"
+          update: []
+          remove: []
+      - name: "rate-limit-store"
+        change: "added"
+        description: "Redis-backed counter store for rate limiting"
+        facts:
+          - "Stores per-client token bucket counters in Redis"
+          - "Expires keys automatically via TTL"
+    connections:
+      - source: "api-server"
+        target: "redis"
+        change: "added"
+        description: "Rate limit counter storage"
+        facts:
+          - "Stores per-client token bucket counters"
+          - "Read/write on every auth request"
+    decisions:
+      - "Use token-bucket rate limiting at the gateway, not per-service"
+
+  data_model:
+    changed: false
+
+  data_flows:
+    changed: false
+
+  rules:
+    changed: false
+
+  capabilities:
+    changed: false
+
+  api_surface:
+    changed: false
+
+  external_dependencies:
+    changed: true
+    details:
+      - name: "rate-limiter-flexible"
+        change: "added"
+        description: "Token-bucket rate limiting library"
+        facts:
+          - "npm package rate-limiter-flexible@^5.0.0"
+          - "Provides sliding-window and token-bucket algorithms"
+      - name: "Redis (Upstash)"
+        change: "added"
+        description: "Managed Redis for rate limit counters"
+        facts:
+          - "Serverless Redis via Upstash"
+          - "Used exclusively for rate limit state"
+
+  tech_stack:
+    changed: false
+
+# ── Summary ───────────────────────────────────────────────────────────────────
+# Not a commit message. Explain WHY and WHAT IMPACT.
+#
+# Good: reasoning, trade-offs, what problem this solves
+# Bad:  "added rate limiting" (no reasoning)
+
+summary: >
+  Token-bucket rate limiting on auth endpoints protects against
+  credential-stuffing attacks. Chose gateway-level enforcement over
+  per-service to avoid duplicating config and to enable a single
+  rate-limit dashboard. Used Upstash Redis (serverless) to avoid
+  managing infrastructure for what amounts to ephemeral counters.
+  Rate limit log initially included client email in debug output;
+  caught during rule check and replaced with anonymized client ID.
+---

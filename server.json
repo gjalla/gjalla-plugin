@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.gjalla/mcp-server",
+  "description": "Architecture visibility and control for agentic engineering. Human-engineer thinking patterns, architecture tracking and control, and rule enforcement.",
+  "title": "gjalla",
+  "version": "0.5.1",
+  "websiteUrl": "https://gjalla.io",
+  "repository": {
+    "url": "https://github.com/gjalla/gjalla-plugin",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "gjalla[mcp]",
+      "version": "0.5.1",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "name": "mcp",
+          "description": "MCP subcommand"
+        },
+        {
+          "type": "positional",
+          "name": "serve",
+          "description": "Start the MCP server"
+        }
+      ],
+      "environmentVariables": []
+    }
+  ]
+}

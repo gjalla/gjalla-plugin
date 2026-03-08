@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gjalla": {
+      "command": "uvx",
+      "args": ["gjalla[mcp]", "mcp", "serve"]
+    }
+  }
+}

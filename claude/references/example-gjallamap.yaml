@@ -1,0 +1,121 @@
+# .gjallamap — File-to-element evidence mapping
+#
+# Maps every gjallastate entry to the code that implements it.
+# Flat dot-path keys for clean diffs. Each key references a gjallastate entry.
+#
+# Adding a file mapping = one clean diff block. No indentation cascades.
+# Missing entries (state key with no map key) = coverage gaps worth investigating.
+
+metadata:
+  version: "2.0"
+
+# ── Architecture elements ─────────────────────────────────────────────────────
+
+architecture.api-server:
+  - file: server/index.ts
+  - file: server/app.ts
+    methods: [createApp, configureMiddleware]
+  - file: server/routes/index.ts
+    methods: [registerRoutes]
+  - file: server/middleware/auth.ts
+    methods: [requireAuth, optionalAuth]
+
+architecture.payment-service:
+  - file: server/services/payment.ts
+    methods: [processPayment, refundTransaction, retryCharge]
+  - file: server/routes/payments.ts
+    methods: [handleCharge, handleRefund]
+
+architecture.web-app:
+  - file: client/src/App.tsx
+  - file: client/src/main.tsx
+  - file: client/src/router.tsx
+    methods: [createRouter]
+
+# ── Relationships ─────────────────────────────────────────────────────────────
+# Each relationship gets its own map entry, pointing to the code that
+# implements the connection — not just the endpoints.
+
+architecture.api-server.relationships.postgres:
+  - file: server/db/index.ts
+    methods: [createPool, getConnection]
+  - file: server/db/drizzle.ts
+    methods: [drizzleClient]
+
+architecture.api-server.relationships.stripe-api:
+  - file: server/clients/stripe.ts
+    methods: [stripeClient, verifyWebhook]
+  - file: server/webhooks/stripe.ts
+    methods: [handleStripeEvent]
+
+architecture.payment-service.relationships.stripe-api:
+  - file: server/services/payment.ts
+    methods: [callStripeAPI]
+  - file: server/clients/stripe.ts
+
+architecture.web-app.relationships.api-server:
+  - file: client/src/lib/api.ts
+    methods: [apiClient, fetchWithAuth]
+  - file: client/src/hooks/useApi.ts
+
+# ── Data model ────────────────────────────────────────────────────────────────
+
+data_model.entities.Order:
+  - file: server/models/order.ts
+  - file: server/db/schema/orders.ts
+  - file: migrations/0045_create_orders.sql
+  - file: shared/types/order.ts
+
+data_model.entities.Customer:
+  - file: server/models/customer.ts
+  - file: server/db/schema/customers.ts
+  - file: migrations/0012_create_customers.sql
+  - file: shared/types/customer.ts
+
+# ── Capabilities ──────────────────────────────────────────────────────────────
+
+capabilities.payment-processing:
+  - file: server/services/payment.ts
+  - file: server/routes/payments.ts
+  - file: tests/payment.test.ts
+
+capabilities.order-management:
+  - file: server/services/order.ts
+  - file: server/routes/orders.ts
+  - file: tests/orders.test.ts
+
+capabilities.user-authentication:
+  - file: server/middleware/auth.ts
+  - file: client/src/providers/AuthProvider.tsx
+  - file: server/services/user-sync.ts
+    methods: [syncClerkUser]
+
+# ── API surface ───────────────────────────────────────────────────────────────
+
+surface_area."POST /api/payments/charge":
+  - file: server/routes/payments.ts
+    methods: [handleCharge]
+
+surface_area."GET /api/orders":
+  - file: server/routes/orders.ts
+    methods: [listOrders]
+
+surface_area."POST /api/orders":
+  - file: server/routes/orders.ts
+    methods: [createOrder]
+
+surface_area."GET /api/orders/:id":
+  - file: server/routes/orders.ts
+    methods: [getOrder]
+
+# ── External services ─────────────────────────────────────────────────────────
+
+services.stripe:
+  - file: server/clients/stripe.ts
+  - file: server/config/stripe.ts
+  - file: server/webhooks/stripe.ts
+
+services.clerk:
+  - file: server/middleware/auth.ts
+  - file: server/services/user-sync.ts
+  - file: client/src/providers/AuthProvider.tsx

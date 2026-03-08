@@ -1,0 +1,31 @@
+---
+description: Architecture-aware coding with gjalla
+globs: "**/*"
+alwaysApply: true
+---
+This project uses gjalla for architecture governance.
+
+Before editing files, use get_file_context to understand which architecture
+elements are affected and what rules apply.
+
+Use get_context for orientation (architecture, rules, capabilities, tech stack).
+
+Before committing, use get_impact to check blast radius and prepare_attestation
+to create a commit attestation documenting what changed and why.
+
+If gjalla MCP tools are not connected, the skills in this plugin still work —
+they just use manual code analysis instead of live architecture data.
+
+Available gjalla MCP tools:
+- get_context — orient in the project (architecture, rules, capabilities, tech stack)
+- get_file_context — understand a file's architectural role before editing
+- get_impact — check blast radius of uncommitted changes before committing
+- prepare_attestation — create commit attestations (two-phase: draft then finalize)
+- add_rule — add principles, ADRs, or invariants
+- get_status — check if gjalla is configured correctly
+- sync — refresh local cache from gjalla cloud
+- setup — initialize gjalla in a repo
+
+Reference files in references/ explain the gjalla state file formats
+(gjallastate, gjallamap, gjallarules, attestation). Consult these when
+you need to understand the data model.

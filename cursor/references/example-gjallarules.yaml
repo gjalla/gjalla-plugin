@@ -1,0 +1,103 @@
+# .gjallarules — Project constraints
+#
+# Three rule types with different semantics:
+#   principles  — ongoing guidelines ("always do X")
+#   adrs        — point-in-time decisions with context ("we chose X because Y")
+#   invariants  — hard constraints ("X must never happen")
+#
+# Each rule scopes to gjallastate entries via the `scope` field.
+# Rules with `evidence` can be checked deterministically (no LLM needed).
+# Rules without evidence require human or agent judgment.
+
+principles:
+  separation-of-concerns:
+    description: Route handlers must not access the database directly
+    status: active
+    scope:
+      - architecture.api-server
+    evidence:
+      - pattern: "no imports from server/db/* in server/routes/*"
+        type: import_check
+
+  pii-encryption-at-rest:
+    description: All PII entities must use column-level encryption
+    status: active
+    scope:
+      - data_model.entities.Order
+      - data_model.entities.Customer
+    evidence:
+      - pattern: "uses encryptedColumn decorator"
+        type: code_pattern
+
+  no-direct-stripe-calls:
+    description: All Stripe interactions must go through the payment service
+    status: active
+    scope:
+      - architecture.payment-service
+      - architecture.api-server
+    evidence:
+      - pattern: "no stripe imports outside server/services/payment.ts and server/clients/stripe.ts"
+        type: import_check
+
+  api-auth-required:
+    description: All API endpoints must require authentication unless explicitly public
+    status: active
+    scope:
+      - surface_area
+
+adrs:
+  grpc-for-internal:
+    title: Use gRPC for inter-service communication
+    status: accepted
+    date: "2025-08-14"
+    context: Need low-latency typed contracts between services
+    decision: gRPC with protobuf for all new inter-service calls
+    scope:
+      - architecture.api-server
+    consequences:
+      - Requires protobuf schema management
+      - Better performance than REST for internal calls
+      - Tooling overhead for code generation
+
+  clerk-for-auth:
+    title: Use Clerk for authentication instead of building in-house
+    status: accepted
+    date: "2025-06-01"
+    context: Team too small to maintain auth infrastructure. Need OAuth, MFA, session management.
+    decision: Clerk handles all auth flows. User data synced to local DB on first login.
+    scope:
+      - capabilities.user-authentication
+      - services.clerk
+    consequences:
+      - Vendor dependency for auth
+      - No custom auth flows without Clerk support
+      - Fast time-to-market for auth features
+
+  soft-delete-entities:
+    title: Soft-delete all user-facing entities
+    status: accepted
+    date: "2025-07-20"
+    context: Hard deletes caused data loss incidents. Need audit trail and undo capability.
+    decision: All user-facing entities use soft-delete (deleted_at timestamp). Hard delete only via admin tooling.
+    scope:
+      - data_model.entities.Order
+      - data_model.entities.Customer
+
+invariants:
+  order-lifecycle:
+    description: Orders must follow draft -> pending -> confirmed -> fulfilled lifecycle
+    status: active
+    scope:
+      - data_model.entities.Order
+    evidence:
+      - pattern: "status transitions validated in changeStatus"
+        type: code_pattern
+        file: server/models/order.ts
+
+  no-pii-in-logs:
+    description: PII fields (email, name, payment info) must never appear in log output
+    status: active
+    scope:
+      - data_model.entities.Customer
+      - data_model.entities.Order
+      - architecture.payment-service
