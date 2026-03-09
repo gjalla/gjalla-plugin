@@ -12,7 +12,7 @@
     {
       "name": "gjalla",
       "source": "./claude",
-      "description": "15 engineering skills that encode senior-engineer thinking patterns. Connects to gjalla for architecture visibility + control, and rule enforcement.",
+      "description": "Architecture visibility and control for agentic engineering. Human-engineer thinking patterns, architecture tracking and control, and rule enforcement.",
       "version": "0.1.0",
       "author": {
         "name": "gjalla, Inc."

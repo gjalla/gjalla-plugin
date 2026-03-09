@@ -1,13 +1,16 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.gjalla/mcp-server",
-  "description": "Architecture visibility and control for agentic engineering. Human-engineer thinking patterns, architecture tracking and control, and rule enforcement.",
+  "description": "Architecture visibility and control for agentic engineering.",
   "version": "0.5.3",
   "packages": [
     {
-      "registry_type": "pypi",
-      "identifier": "gjalla[mcp]",
-      "version": "0.5.3"
+      "registryType": "pypi",
+      "identifier": "gjalla",
+      "version": "0.5.3",
+      "transport": {
+        "type": "stdio"
+      }
     }
   ]
 }
