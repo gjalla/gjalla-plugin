@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.gjalla/mcp-server",
-  "description": "Architecture visibility and control for agentic engineering.",
-  "version": "0.5.3",
+  "description": "Persistent memory and traceability for agentic engineering.",
+  "version": "0.7.6",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "gjalla",
-      "version": "0.5.3",
+      "version": "0.7.6",
       "transport": {
         "type": "stdio"
       }
