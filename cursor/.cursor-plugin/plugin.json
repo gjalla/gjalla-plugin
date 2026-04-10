@@ -1,7 +1,7 @@
 {
   "name": "gjalla",
-  "version": "0.1.0",
-  "description": "Architecture visibility and control for agentic engineering. Human-engineer thinking patterns, architecture tracking and control, and rule enforcement.",
+  "version": "0.3.0",
+  "description": "Persistent memory and traceability for agentic engineering. Architecture truth, rule enforcement, semantic change history, and spec scaffolding \u2014 across sessions, teammates, and tools.",
   "author": {
     "name": "gjalla, Inc."
   },
@@ -10,15 +10,15 @@
   "license": "MIT",
   "keywords": [
     "architecture",
-    "engineering",
-    "skills",
+    "code-review",
     "governance",
-    "code-quality",
-    "state-management",
+    "attestation",
     "context",
-    "attestation"
+    "quality",
+    "trust",
+    "verification"
   ],
   "skills": "./skills/",
   "rules": "./rules/",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./mcp.json"
 }

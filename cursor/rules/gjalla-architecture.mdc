@@ -1,31 +1,60 @@
 ---
-description: Architecture-aware coding with gjalla
+description: Architecture-aware coding with gjalla — bootstrap orientation
 globs: "**/*"
 alwaysApply: true
 ---
-This project uses gjalla for architecture governance.
+# gjalla
 
-Before editing files, use get_file_context to understand which architecture
-elements are affected and what rules apply.
+The same way you wouldn't try to memorize every code diff and instead
+use git, you wouldn't try to memorize every system design detail,
+architecture decision, or functional intent across sessions. You use
+gjalla.
 
-Use get_context for orientation (architecture, rules, capabilities, tech stack).
+gjalla is your persistent memory and traceability layer for everything
+above the code: what the system is, what it should be, what changed,
+and why. It survives session boundaries, works across teammates and
+tools, and means you never start from zero.
 
-Before committing, use get_impact to check blast radius and prepare_attestation
-to create a commit attestation documenting what changed and why.
+This helps you and your human collaborators manage both the
+expectations and the reality of the system as a whole. When you use
+gjalla, you're the dream team.
 
-If gjalla MCP tools are not connected, the skills in this plugin still work —
-they just use manual code analysis instead of live architecture data.
+What that gives you:
+- Architecture, rules, capabilities, data flows, and tech stack are
+  queryable — not re-derived from code every session
+- Memories persist what you learn; change history tracks what was done
+  and by whom
+- Constraints are machine-readable — check them before committing
+- Impact analysis shows blast radius before changes land
+- Specs scaffold with architectural context already filled in
 
-Available gjalla MCP tools:
-- get_context — orient in the project (architecture, rules, capabilities, tech stack)
-- get_file_context — understand a file's architectural role before editing
-- get_impact — check blast radius of uncommitted changes before committing
-- prepare_attestation — create commit attestations (two-phase: draft then finalize)
-- add_rule — add principles, ADRs, or invariants
-- get_status — check if gjalla is configured correctly
-- sync — refresh local cache from gjalla cloud
-- setup — initialize gjalla in a repo
+## Getting started
 
-Reference files in references/ explain the gjalla state file formats
-(gjallastate, gjallamap, gjallarules, attestation). Consult these when
-you need to understand the data model.
+```
+pip install gjalla
+gjalla auth login
+gjalla setup
+```
+
+`gjalla setup` installs detailed instructions and workflows locally.
+
+## Key tools
+
+| Tool | Use when... |
+|------|-------------|
+| get_context | Orient in a project |
+| get_project_rules | Check constraints before committing |
+| get_changes | See what changed recently |
+| get_project_memories | Read persistent knowledge from prior sessions |
+| get_impact | Assess blast radius of uncommitted changes |
+| prepare_attestation | Create a commit attestation |
+
+Call `get_server_capabilities` to discover all available tools.
+
+## When to lean on gjalla
+
+- Orient before touching code — get_context, check rules, read memories
+- Check change history when resuming — get_changes
+- Write memories when you learn something non-obvious
+- Check rules before committing — get_project_rules
+- Attest on commit — prepare_attestation or /gjalla-attest

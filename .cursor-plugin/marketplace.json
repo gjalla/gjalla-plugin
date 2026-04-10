@@ -8,8 +8,8 @@
     {
       "name": "gjalla",
       "source": "./cursor",
-      "description": "Architecture visibility and control for agentic engineering. Human-engineer thinking patterns, architecture tracking and control, and rule enforcement.",
-      "version": "0.1.0",
+      "description": "Persistent memory and traceability for agentic engineering. Architecture truth, rule enforcement, semantic change history, and spec scaffolding \u2014 across sessions, teammates, and tools. 8 skills (spec-create, spec-review, verify, task-breakdown, post-mortem, orient-in-project, use-gjalla-memory, read-change-history), 6 commands, and MCP server for live architecture queries.",
+      "version": "0.3.0",
       "author": {
         "name": "gjalla, Inc."
       },
@@ -18,16 +18,13 @@
       "license": "MIT",
       "keywords": [
         "architecture",
-        "engineering",
-        "skills",
+        "code-review",
         "governance",
-        "guardrails",
-        "rules",
-        "code-quality",
-        "state-management",
-        "context",
         "attestation",
-        "version-control"
+        "context",
+        "quality",
+        "trust",
+        "verification"
       ],
       "category": "engineering"
     }
