@@ -38,32 +38,33 @@ rediscover them.
 
 ---
 
-## When to write memories
+## How memories are persisted
 
-- **After a successful pattern** — "this approach worked well for X
-  because Y" helps future sessions make the same call faster.
-- **After a failed attempt** — "tried X, it broke because Y, Z is
-  the right approach" prevents re-treading dead ends.
-- **After a surprising discovery** — something non-obvious about the
-  codebase, a quirk, a dependency relationship that isn't in the
-  architecture model yet.
-- **After a decision** — why you chose approach A over B, especially
-  if the tradeoff isn't self-evident from the code.
+Your memories are collected automatically by gjalla when you commit.
+The post-commit hook runs `gjalla sync`, which gathers memories from
+your agent's native memory system and uploads them to the gjalla
+platform. From there, they're distributed to other agents and
+sessions working on the same project.
 
----
+**You don't need to call a special API to write memories.** Just use
+your agent's native memory system (e.g., Claude Code's auto memory,
+Cursor's context) as you normally would. gjalla handles the rest on
+commit.
 
-## How to write
+**What makes a good memory:**
+- Patterns that worked ("this approach worked for X because Y")
+- Failed attempts ("tried X, it broke because Y")
+- Surprising discoveries about the codebase
+- Decisions and their rationale
+- Gotchas that aren't obvious from the code
 
-Write memories via the gjalla memory API. Each memory should have:
+Keep each memory focused — one insight per entry. Future sessions
+read them in a list.
 
-- **Content** — markdown, concise. Lead with the actionable insight.
-- **Category** — what kind of knowledge: `pattern`, `gotcha`,
-  `decision`, `failure`, `architecture`, `process`.
-- **Element ID** (optional) — tie the memory to a specific
-  architecture element if it's scoped (e.g., `architecture.api-server`).
-
-Keep memories focused. One insight per memory. Future sessions will
-read them in a list — a wall of text defeats the purpose.
+**If you don't commit:** memories from the current session won't be
+persisted to gjalla until a commit happens. If you learn something
+important but aren't ready to commit, note it in your agent's native
+memory — it'll be collected on the next commit.
 
 ---
 
