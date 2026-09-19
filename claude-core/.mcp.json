@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "gjalla": {
+      "command": "gjalla",
+      "args": ["mcp", "serve", "--profile", "core"],
+      "_fallback_note": "SPIKE: harness has no PATH-fallback syntax today. Real plugin should ship a tiny launcher script that tries `gjalla` on PATH and falls back to `uvx gjalla@<version> mcp serve` (see brief: 'Hooks call gjalla ... if on PATH, else uvx gjalla@<version> ...'). Cloud test (Q6) should also evaluate whether a hosted HTTP MCP with a header key is a better entry than local stdio + uvx, since it is unclear uv/uvx exists in the cloud image."
+    }
+  }
+}

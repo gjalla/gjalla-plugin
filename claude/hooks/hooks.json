@@ -1,3 +1,39 @@
 {
-  "hooks": {}
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "gjalla sync --session-start 2>/dev/null || echo 'gjalla not configured. Skills work standalone. Run /gjalla-setup to connect for architecture-aware analysis.'",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if files were modified during this session by looking at the conversation history. If the agent created, edited, or wrote files during this session, add a brief note at the end of the response: '---\nFiles were modified in this session. Run /gjalla-attest to create an attestation documenting what changed and why.' Do NOT add this note if no files were modified. Do NOT block or modify the response — only append the note if applicable.",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'p=$(cat); case \"$p\" in *\"git commit\"*|*\"git\"*\"commit\"*) printf %s \"$p\" | gjalla attest add 2>/dev/null || true;; esac'"
+          }
+        ]
+      }
+    ]
+  }
 }
