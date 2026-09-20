@@ -47,8 +47,20 @@ perl -pi -e 's/case \\"\$p\\" in \*\\"git commit\\"\*\|/case \\"\$p\\" in /' "$t
 expect fail "claude commit-capture wrapper edited"
 
 fresh
-perl -pi -e 's/"command": "gjalla hook session-end --harness codex-cli"/"command": "gjalla attest add --from-hook --agent codex-cli"/' "$tmp/tree/codex/hooks/hooks.json"
-expect fail "codex carrying a commit-capture row before section 2"
+perl -ni -e 'print unless /gjalla attest add/' "$tmp/tree/codex/hooks/hooks.json"
+expect fail "codex missing commit-capture row"
+
+fresh
+perl -pi -e 's/--agent codex-cli/--agent claude-code/' "$tmp/tree/codex/hooks/hooks.json"
+expect fail "codex commit-capture row with wrong --agent"
+
+fresh
+perl -pi -e 's/--from-hook --agent codex-cli/--from-hook --agent codex-cli --user/' "$tmp/tree/codex/hooks/hooks.json"
+expect fail "codex commit-capture row with --user"
+
+fresh
+perl -pi -e 's/"command": "gjalla hook session-end --harness cursor"/"command": "gjalla hook session-end --harness cursor", "x": "gjalla attest add --from-hook --agent cursor"/' "$tmp/tree/cursor/hooks/hooks.json"
+expect fail "cursor carrying a commit-capture row"
 
 fresh
 perl -pi -e 's/gjalla hook turn-end --harness cursor/gjalla hook turn-ended --harness cursor/' "$tmp/tree/cursor/hooks/hooks.json"

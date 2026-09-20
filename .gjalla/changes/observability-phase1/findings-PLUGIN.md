@@ -264,3 +264,65 @@ done here: it waits on CLI B7.4 and is a separate lane.
    profile from this session. Same limitation as the sections above.
    Needs Ellie.
 2. Section 2 (Codex row) — separate lane, waits on B7.4.
+
+## PLUGIN-2: section 2, the Codex row (plus the section 3 parts it makes apply)
+
+Branch `feat/core-plugin`, on top of 4f7e6be. B7.4 (gjalla-precommit
+`feat/observability-collector`, 3db7322) found Codex has `PostToolUse`,
+matches shell calls as `Bash`, and sends the command in
+`tool_input.command`, so section 2 applies: Codex gets the row.
+
+### Files changed
+
+- `codex/hooks/hooks.json` — added `PostToolUse`, matcher `Bash`, command
+  = `COMMIT_CAPTURE_COMMAND` from `gjalla_precommit/agents/claude_code.py`
+  with ` --user` removed and `--agent claude-code` → `--agent codex-cli`.
+  Derived from the imported source, asserted against the Claude row, not
+  retyped. The other three entries unchanged. No `timeout` on the row:
+  Codex's default for events other than SessionEnd/Interrupt is 600s
+  (B7.4 / findings-PLUGIN above), and the wrapper exits immediately on
+  anything but a `git commit`.
+- `scripts/check-hooks.sh` — the expected command set is now four for
+  Claude Code and Codex: exactly one row in `codex/hooks/hooks.json`
+  byte-equal to the Claude row with `--agent codex-cli` substituted; still
+  zero `gjalla attest` rows in `cursor/`; the three collector commands
+  still identical everywhere.
+- `scripts/check-hooks-test.sh` — the "codex carrying a row before section
+  2" case is gone; replaced by: Codex missing the row, Codex wrong
+  `--agent`, Codex `--user` present, Cursor carrying a row (added beside
+  the collector commands, so it trips the attest branch, not the collector
+  one). 8 → 11 drift cases.
+- `codex/README.md` — "Four hooks"; table gains the row (and now shows the
+  `--harness codex-cli` flags the file actually carries); "what it
+  collects" sentence with "commits, with the attestation the agent writes
+  for them (task type, summary)"; wrapper behaviour, the Codex payload
+  facts with the doc reference from findings-B7.md
+  (`learn.chatgpt.com/docs/hooks`), and the double-firing sentence;
+  `/hooks` trust step says four entries.
+- `README.md` — hook-table row no longer "Claude Code only": "(Claude Code,
+  Codex)", command `--agent <claude-code|codex-cli>`; intro sentence
+  "Claude Code and Codex wire a fourth".
+- `claude/*`, `cursor/*`, `PLUGIN_SYNC.md`, marketplace files — unchanged.
+  PLUGIN_SYNC's one rule (three collector commands identical everywhere)
+  still holds.
+
+### Checks run
+
+- All three `hooks.json` parse as JSON.
+- `codex/hooks/hooks.json` `PostToolUse[0].matcher == "Bash"`, command ==
+  Claude row with `--agent codex-cli`; Claude row still ==
+  `COMMIT_CAPTURE_COMMAND.replace(" --user", "")`.
+- `scripts/check-hooks.sh`: OK before (three collector + Claude row) and
+  after (three collector + Claude and Codex rows).
+- `scripts/check-hooks-test.sh`: before 8 passed, 0 failed; after 11
+  passed, 0 failed.
+- Pre-commit gate (`scripts/gjalla-attestation-check.sh` via the repo's
+  git hook, config and script present untracked from the previous lane):
+  ran on this commit.
+
+### Not done, stated plainly
+
+1. The acceptance run for Codex (install the plugin, trust the four
+   entries in `/hooks`, commit without an attestation, observe the nudge
+   and the classification landing) was not run: no way to launch Codex
+   from this session. Same limitation as the Claude Code row. Needs Ellie.

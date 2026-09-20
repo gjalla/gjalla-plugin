@@ -7,9 +7,10 @@
 # row (PostToolUse on Bash, piping the payload into `gjalla attest add
 # --from-hook --agent claude-code`), checked byte-for-byte against the
 # string below, which is COMMIT_CAPTURE_COMMAND from gjalla-precommit's
-# agents/claude_code.py without its hidden `--user` flag. Codex and Cursor
-# carry no commit-capture row until their harness is confirmed to expose a
-# PostToolUse shell command (PLUGIN-2 section 2, pending CLI B7.4).
+# agents/claude_code.py without its hidden `--user` flag. Codex carries the
+# same row with `--agent codex-cli` (its PostToolUse matches shell calls as
+# `Bash`; CLI B7.4). Cursor carries no commit-capture row: no PostToolUse
+# shell command is confirmed for it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -35,26 +36,26 @@ for f in claude/hooks/hooks.json codex/hooks/hooks.json cursor/hooks/hooks.json;
 
   attest_rows=$(grep -c 'gjalla attest' "$f" || true)
   case "$f" in
-    claude/hooks/hooks.json)
-      exact=$(grep -cF -- "$commit_capture" "$f" || true)
-      if [ "$attest_rows" -ne 1 ] || [ "$exact" -ne 1 ]; then
-        echo "DRIFT in $f (commit capture): expected exactly one row equal to:"
-        echo "  $commit_capture"
-        grep 'gjalla attest' "$f" | sed 's/^/  got: /' || echo "  got: (none)"
-        fail=1
-      fi
-      ;;
-    *)
-      if [ "$attest_rows" -ne 0 ]; then
-        echo "DRIFT in $f (commit capture): no commit-capture row expected here yet"
-        grep 'gjalla attest' "$f" | sed 's/^/  got: /'
-        fail=1
-      fi
-      ;;
+    claude/hooks/hooks.json) want="$commit_capture" ;;
+    codex/hooks/hooks.json)  want="${commit_capture/--agent claude-code/--agent codex-cli}" ;;
+    *)                       want="" ;;
   esac
+  if [ -n "$want" ]; then
+    exact=$(grep -cF -- "$want" "$f" || true)
+    if [ "$attest_rows" -ne 1 ] || [ "$exact" -ne 1 ]; then
+      echo "DRIFT in $f (commit capture): expected exactly one row equal to:"
+      echo "  $want"
+      grep 'gjalla attest' "$f" | sed 's/^/  got: /' || echo "  got: (none)"
+      fail=1
+    fi
+  elif [ "$attest_rows" -ne 0 ]; then
+    echo "DRIFT in $f (commit capture): no commit-capture row expected here"
+    grep 'gjalla attest' "$f" | sed 's/^/  got: /'
+    fail=1
+  fi
 done
 
 if [ "$fail" -eq 0 ]; then
-  echo "OK: all hooks.json files invoke the same three collector commands; Claude Code carries the commit-capture row."
+  echo "OK: all hooks.json files invoke the same three collector commands; Claude Code and Codex carry the commit-capture row."
 fi
 exit $fail

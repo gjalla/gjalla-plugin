@@ -24,14 +24,14 @@ Tool result bodies, or file contents.
 ## The hooks
 
 Every supported harness wires the same three collection points to the
-`gjalla` CLI (the collector). Claude Code wires a fourth, commit capture:
+`gjalla` CLI (the collector). Claude Code and Codex wire a fourth, commit capture:
 
 | Event | Command | Notes |
 |---|---|---|
 | Session start | `gjalla hook session-start` | drains the outbox, sweeps missed deltas |
 | End of each turn | `gjalla hook turn-end` | posts the turn's delta; async where the harness supports it |
 | Session end | `gjalla hook session-end` | posts the final delta, `status: ended` |
-| After each `git commit` (Claude Code only) | `gjalla attest add --from-hook --agent claude-code` | `PostToolUse` on `Bash`, pre-filtered for `git commit`; records HEAD for the session and nudges the agent to write the attestation when there is none |
+| After each `git commit` (Claude Code, Codex) | `gjalla attest add --from-hook --agent <claude-code\|codex-cli>` | `PostToolUse` on `Bash`, pre-filtered for `git commit`; records HEAD for the session and nudges the agent to write the attestation when there is none |
 
 A user who also ran `gjalla setup hooks` has the same commit-capture row
 at user level; the CLI records a commit once, so both may be installed.
