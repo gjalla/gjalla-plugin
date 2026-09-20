@@ -41,7 +41,7 @@ carries no URL.
 |---|---|---|
 | Claude Code | [`claude/`](claude/) | plugin manifest + hooks + README |
 | Codex CLI | [`codex/`](codex/) | plugin manifest + hooks + README — hooks need trusting via `/hooks`, see its README |
-| Cursor | [`cursor/`](cursor/) | plugin manifest + hooks + README |
+| Cursor | [`cursor/`](cursor/) | plugin manifest + hooks + README, but not yet listed in the marketplace — no Cursor transcript parser exists yet, hooks currently no-op, see its README |
 | OpenClaw | [`openclaw/`](openclaw/) | README only — no hook surface to attach to, see its README |
 | Devin | — | no local surface; a server-side pull through Devin's enterprise sessions API is planned, not built |
 
@@ -51,8 +51,8 @@ gjalla auth login
 ```
 
 Then install the plugin for your harness (Claude Code: `claude plugin add
-gjalla`; Cursor: install from the marketplace source; Codex: install then
-trust via `/hooks`, see `codex/README.md`).
+gjalla`; Codex: install then trust via `/hooks`, see `codex/README.md`).
+Cursor isn't published to the marketplace yet — see `cursor/README.md`.
 
 ## License
 

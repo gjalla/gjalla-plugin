@@ -3,18 +3,18 @@
   "hooks": {
     "sessionStart": [
       {
-        "command": "gjalla hook session-start"
+        "command": "gjalla hook session-start --harness cursor"
       }
     ],
     "stop": [
       {
-        "command": "gjalla hook turn-end",
+        "command": "gjalla hook turn-end --harness cursor",
         "timeout": 5
       }
     ],
     "sessionEnd": [
       {
-        "command": "gjalla hook session-end",
+        "command": "gjalla hook session-end --harness cursor",
         "timeout": 3
       }
     ]

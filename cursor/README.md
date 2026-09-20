@@ -27,3 +27,11 @@ Unlike Claude Code and Codex, Cursor's hook system has no `async` flag —
 practice it's single-digit milliseconds after the first turn (the CLI
 only parses what's new). `sessionStart` and `sessionEnd` are fire-and-forget
 by Cursor's own design, so they never block.
+
+## Not collecting yet
+
+Cursor hooks call `gjalla hook --harness cursor`, which currently no-ops
+with a clear message — no Cursor transcript parser exists yet (tracked as
+Phase 2 in gjalla-precommit's `findings-B7.md`). This directory isn't
+listed in `.cursor-plugin/marketplace.json` yet for that reason; it ships
+correct hooks.json/plugin.json ready for when the parser lands.

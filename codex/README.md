@@ -27,3 +27,8 @@ plugin, run `/hooks` in the Codex CLI, find the three `gjalla` entries
 do, Codex silently skips them — including under `codex exec`, which does
 not prompt (see [openai/codex#46210](https://github.com/openai/codex/issues/46210)).
 If a session isn't showing up in gjalla, check `/hooks` first.
+
+## Harness tagging
+
+Codex sessions are tagged and parsed correctly via `--harness codex-cli`
+(gjalla-precommit B7.3).

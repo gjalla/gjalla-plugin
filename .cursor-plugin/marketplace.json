@@ -4,20 +4,5 @@
     "name": "gjalla, Inc.",
     "email": "hello@gjalla.io"
   },
-  "plugins": [
-    {
-      "name": "gjalla",
-      "source": "./cursor",
-      "description": "Observability for your coding agent sessions. Session and commit telemetry, synced to gjalla cloud automatically via three hooks.",
-      "version": "0.1.0",
-      "author": {
-        "name": "gjalla, Inc."
-      },
-      "homepage": "https://gjalla.io",
-      "repository": "https://github.com/gjalla/gjalla-plugin",
-      "license": "MIT",
-      "keywords": ["observability", "telemetry", "agentic-engineering"],
-      "category": "engineering"
-    }
-  ]
+  "plugins": []
 }
