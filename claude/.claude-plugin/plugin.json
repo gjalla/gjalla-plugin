@@ -1,23 +1,13 @@
 {
   "name": "gjalla",
-  "version": "0.3.0",
-  "description": "Persistent memory and traceability for agentic engineering. Architecture truth, rule enforcement, semantic change history, and spec scaffolding \u2014 across sessions, teammates, and tools.",
+  "version": "0.1.0",
+  "description": "Observability for your coding agent sessions.",
   "author": {
     "name": "gjalla, Inc."
   },
   "homepage": "https://gjalla.io",
   "repository": "gjalla/gjalla-plugin",
   "license": "MIT",
-  "keywords": [
-    "architecture",
-    "code-review",
-    "governance",
-    "attestation",
-    "context",
-    "quality",
-    "trust",
-    "verification"
-  ],
-  "mcpServers": "./.mcp.json",
+  "keywords": ["observability", "telemetry", "agentic-engineering"],
   "hooks": "./hooks/hooks.json"
 }

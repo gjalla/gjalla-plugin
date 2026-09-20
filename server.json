@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.gjalla/mcp-server",
   "description": "Persistent memory and traceability for agentic engineering.",
-  "version": "0.7.6",
+  "version": "0.10.2",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "gjalla",
-      "version": "0.7.6",
+      "version": "0.10.2",
       "transport": {
         "type": "stdio"
       }
