@@ -12,7 +12,7 @@
     {
       "name": "gjalla",
       "source": "./claude",
-      "description": "Observability for your coding agent sessions. Session and commit telemetry, synced to gjalla cloud automatically via three hooks.",
+      "description": "Observability for your coding agent sessions. Session and commit telemetry, synced to gjalla cloud automatically via four hooks.",
       "version": "0.1.0",
       "author": {
         "name": "gjalla, Inc."
