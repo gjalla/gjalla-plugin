@@ -6,18 +6,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-start"
+            "command": "gjalla hook session-start --harness codex-cli"
           }
         ]
       }
     ],
     "Stop": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook turn-end",
+            "command": "gjalla hook turn-end --harness codex-cli",
             "async": true
           }
         ]
@@ -25,11 +24,11 @@
     ],
     "SessionEnd": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-end"
+            "command": "gjalla hook session-end --harness codex-cli",
+            "timeout": 3
           }
         ]
       }
@@ -40,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'p=$(cat); case \"$p\" in *\"git commit\"*|*\"git\"*\"commit\"*) printf %s \"$p\" | gjalla attest add --from-hook --agent claude-code 2>/dev/null || true;; esac'"
+            "command": "sh -c 'p=$(cat); case \"$p\" in *\"git commit\"*|*\"git\"*\"commit\"*) printf %s \"$p\" | gjalla attest add --from-hook --agent codex-cli 2>/dev/null || true;; esac'"
           }
         ]
       }

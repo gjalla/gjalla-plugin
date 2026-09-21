@@ -1,0 +1,7 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "gjalla",
+  "version": "0.1.0",
+  "description": "Observability for your coding agent sessions.",
+  "hooks": "./hooks/hooks.json"
+}

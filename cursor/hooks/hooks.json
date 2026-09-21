@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "gjalla hook session-start --harness cursor"
+      }
+    ],
+    "stop": [
+      {
+        "command": "gjalla hook turn-end --harness cursor",
+        "timeout": 5
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "gjalla hook session-end --harness cursor",
+        "timeout": 3
+      }
+    ]
+  }
+}

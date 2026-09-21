@@ -5,3 +5,16 @@ __pycache__/
 .env
 .env.*
 *.log
+.gjalla/
+/.mcp.json
+/scripts/
+/CLAUDE.md
+*.pem
+.gjalla/.platform/
+.gjalla/changes/
+.gjalla/.loop-override
+gjalla/
+.entire/
+.agents/
+agent/
+skills-lock.json

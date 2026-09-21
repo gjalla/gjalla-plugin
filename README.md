@@ -1,67 +1,63 @@
 # gjalla plugin
 
-Architecture visibility and control for agentic engineering. Because coding agents work faster than we do, and they do it without the context and processes we do, collaborating with them can be tedious and frustrating. This repo includes 15 skills that encode senior-engineer thinking patterns, plus an MCP server that a) gives your agent system-level context, b) points you toward what AI-generated changes are important for you to review, and c) lets you define and enforce rules for your process and business logic.
+Observability for agentic engineering. This plugin is collection only:
+install it and session/commit telemetry starts flowing to gjalla cloud
+automatically, harness by harness, with no per-repo setup and nothing to
+run by hand.
 
-## What's included
+Skills and the MCP server (context, memory, rules) are **not** part of
+this plugin. Skills come from `npx skills add gjalla/engineering`; the
+MCP server is installed by the `gjalla-onboard` skill for teams that want
+live context and memory. This repo is telemetry only.
 
-- **15 engineering skills** — thinking patterns for planning changes, reviewing code, managing debt, writing tests, and more. These work standalone with any AI agent.
-- **MCP server** — connects to [gjalla](https://gjalla.io) for live architecture context, system-level impact analysis, and rule enforcement. Makes your agent outputs dramatically better.
-- **Reference docs** — gjallastate/gjallamap/gjallarules/attestation file format specs with annotated examples.
+## What it collects
 
-## Skills
+A trimmed transcript, as ordered events: user and assistant text, tool
+names and inputs, tool result sizes and error classes, commits, with the
+attestation the agent writes for them (task type, summary), context
+compactions, interrupts, and subagent boundaries.
 
-| Skill | What it does |
-|-------|-------------|
-| `analyze-before-coding` | Understand architecture before writing code |
-| `clarify-requirements` | Surface ambiguity and missing specs before implementation |
-| `match-codebase-conventions` | Match existing patterns, naming, and style |
-| `design-for-change` | Design abstractions that accommodate future changes |
-| `architect-error-handling` | Design error handling aligned with system architecture |
-| `triage-scope` | Identify and separate adjacent issues from current task |
-| `write-design-doc` | Write design documents for large features |
-| `design-api` | Design APIs consistent with existing surface area |
-| `prepare-for-review` | Pre-PR cleanup and completeness check |
-| `perform-review` | Code review against architecture and rules |
-| `add-observability` | Design logging, metrics, and tracing that match the architecture |
-| `plan-migration` | Plan safe migrations with rollback strategies |
-| `manage-tech-debt` | Identify, prioritize, and address technical debt |
-| `write-runbook` | Create operational runbooks grounded in actual system state |
-| `conduct-post-mortem` | Blameless incident analysis with architecture context |
+## What it never collects
 
-## Installation
+Tool result bodies, or file contents.
 
-### Claude Code
+## The hooks
+
+Every supported harness wires the same three collection points to the
+`gjalla` CLI (the collector). Claude Code and Codex wire a fourth, commit capture:
+
+| Event | Command | Notes |
+|---|---|---|
+| Session start | `gjalla hook session-start` | drains the outbox, sweeps missed deltas |
+| End of each turn | `gjalla hook turn-end` | posts the turn's delta; async where the harness supports it |
+| Session end | `gjalla hook session-end` | posts the final delta, `status: ended` |
+| After each `git commit` (Claude Code, Codex) | `gjalla attest add --from-hook --agent <claude-code\|codex-cli>` | `PostToolUse` on `Bash`, pre-filtered for `git commit`; records HEAD for the session and nudges the agent to write the attestation when there is none |
+
+A user who also ran `gjalla setup hooks` has the same commit-capture row
+at user level; the CLI records a commit once, so both may be installed.
+
+The hooks post to wherever `gjalla auth login` configured
+(`GJALLA_API_KEY`/`GJALLA_API_URL`, or the CLI's own config). This repo
+carries no URL.
+
+## Install per harness
+
+| Harness | Directory | Status |
+|---|---|---|
+| Claude Code | [`claude/`](claude/) | plugin manifest + hooks + README |
+| Codex CLI | [`codex/`](codex/) | plugin manifest + hooks + README — hooks need trusting via `/hooks`, see its README |
+| Cursor | [`cursor/`](cursor/) | plugin manifest + hooks + README, but not yet listed in the marketplace — no Cursor transcript parser exists yet, hooks currently no-op, see its README |
+| OpenClaw | [`openclaw/`](openclaw/) | README only — no hook surface to attach to, see its README |
+| Devin | — | no local surface; a server-side pull through Devin's enterprise sessions API is planned, not built |
 
 ```
-/plugin marketplace add gjalla/gjalla-plugin
-/plugin install gjalla@gjalla-plugin
+pip install gjalla
+gjalla auth login
 ```
 
-### Cursor
-
-Install from the [Cursor Marketplace](https://cursor.com/marketplace), or add the repo manually.
-
-### With gjalla MCP server (optional)
-
-The plugin includes MCP server config that auto-configures the gjalla MCP server. For it to work:
-
-```bash
-pip install gjalla[mcp]
-gjalla setup
-```
-
-Without the MCP server, all skills still work, they just won't have access to the curated architecture and configured rules.
-
-## File formats
-
-The `references/` directory contains specs and examples for:
-
-- **gjallastate** — declarative architecture state (elements, connections, capabilities, tech stack, etc.)
-- **gjallamap** — file-to-element evidence mapping
-- **gjallarules** — principles, ADRs, and invariants
-- **attestation** — commit attestation format
-
-These are version-controlled, diffable, agent-readable descriptions of the state of your codebase.
+Then install the plugin for your harness (Claude Code: `claude plugin add
+gjalla`; Codex: install then trust via `/hooks`, see `codex/README.md`).
+Cursor isn't published to the marketplace yet — see `cursor/README.md`.
 
 ## License
 
