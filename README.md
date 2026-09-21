@@ -24,7 +24,10 @@ Tool result bodies, or file contents.
 ## The hooks
 
 Every supported harness wires the same three collection points to the
-`gjalla` CLI (the collector). Claude Code and Codex wire a fourth, commit capture:
+`gjalla` CLI (the collector). Claude Code and Codex wire a fourth, commit
+capture. Hermes is the one harness whose hooks are Python callbacks rather
+than `gjalla` CLI commands — its plugin API hands over structured events
+directly, so there is no transcript to parse:
 
 | Event | Command | Notes |
 |---|---|---|
@@ -48,6 +51,7 @@ carries no URL.
 | Codex CLI | [`codex/`](codex/) | plugin manifest + hooks + README — hooks need trusting via `/hooks`, see its README |
 | Cursor | [`cursor/`](cursor/) | plugin manifest + hooks + README, but not yet listed in the marketplace — no Cursor transcript parser exists yet, hooks currently no-op, see its README |
 | OpenClaw | [`openclaw/`](openclaw/) | README only — no hook surface to attach to, see its README |
+| Hermes Agent | [`hermes/`](hermes/) | plugin manifest + README; hooks call the `gjalla-observe` SDK adapter, no CLI hooks, no backfill |
 | Devin | — | no local surface; a server-side pull through Devin's enterprise sessions API is planned, not built |
 
 ```
