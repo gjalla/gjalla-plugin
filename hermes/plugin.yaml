@@ -1,0 +1,14 @@
+name: gjalla
+version: 0.1.0
+description: Sends Hermes session events to gjalla Observe (Observe > Sessions)
+provides_hooks:
+  - on_session_start
+  - pre_llm_call
+  - post_api_request
+  - pre_tool_call
+  - post_tool_call
+  - api_request_error
+  - on_session_end
+python_dependencies:
+  - "gjalla-observe>=0.1,<0.2"
+license: MIT
