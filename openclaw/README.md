@@ -9,7 +9,7 @@ devin | custom`), and it has no documented or discoverable lifecycle-hook system
 to bundle a plugin's `hooks.json` into. There is nothing here for the three
 collector hooks to attach to.
 
-`gjalla scan --upload` is the fallback for harnesses without a hook surface,
+`gjalla scan` is the fallback for harnesses without a hook surface,
 but as shipped it only globs `~/.claude/projects/*/*.jsonl` and
 `~/.codex/sessions/**/*.jsonl` — it does not know about OpenClaw's transcript
 location, so it won't pick up OpenClaw sessions either, today. There is no
