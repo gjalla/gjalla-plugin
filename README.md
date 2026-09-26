@@ -17,10 +17,6 @@ names and inputs, tool result sizes and error classes, commits, with the
 attestation the agent writes for them (task type, summary), context
 compactions, interrupts, and subagent boundaries.
 
-## What it never collects
-
-Tool result bodies, or file contents.
-
 ## The hooks
 
 Every supported harness wires the same three collection points to the
