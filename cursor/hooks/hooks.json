@@ -3,7 +3,8 @@
   "hooks": {
     "sessionStart": [
       {
-        "command": "gjalla hook session-start --harness cursor"
+        "command": "gjalla hook session-start --harness cursor",
+        "timeout": 3
       }
     ],
     "stop": [
