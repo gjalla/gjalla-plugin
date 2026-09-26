@@ -42,10 +42,11 @@ MCP server:
 A user who also ran `gjalla setup hooks` has the same commit-capture row
 at user level; the CLI records a commit once, so both may be installed.
 
-Claude Code and Codex also register the gjalla MCP server
+Claude Code also registers the gjalla MCP server
 (`gjalla mcp serve --from-plugin`) for context, memory and rules tools --
 empty (no tools registered) when memory is off, or when the repo already
-has its own `gjalla` entry in `.mcp.json`.
+has its own `gjalla` entry in `.mcp.json`. Codex's plugin does not
+register it yet -- see `codex/README.md`.
 
 The hooks post to wherever `gjalla auth login` configured
 (`GJALLA_API_KEY`/`GJALLA_API_URL`, or the CLI's own config). This repo
