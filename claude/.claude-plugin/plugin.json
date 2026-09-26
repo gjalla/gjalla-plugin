@@ -9,5 +9,11 @@
   "repository": "gjalla/gjalla-plugin",
   "license": "MIT",
   "keywords": ["observability", "telemetry", "agentic-engineering"],
-  "hooks": "./hooks/hooks.json"
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": {
+    "gjalla": {
+      "command": "gjalla",
+      "args": ["mcp", "serve", "--from-plugin"]
+    }
+  }
 }
