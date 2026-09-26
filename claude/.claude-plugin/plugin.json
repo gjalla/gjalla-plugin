@@ -13,7 +13,10 @@
   "mcpServers": {
     "gjalla": {
       "command": "gjalla",
-      "args": ["mcp", "serve", "--from-plugin"]
+      "args": ["mcp", "serve"],
+      "env": {
+        "GJALLA_FROM_PLUGIN": "1"
+      }
     }
   }
 }

@@ -27,7 +27,7 @@ records a commit once, so both may be installed.
 ## MCP server
 
 Unlike the Claude Code plugin, this manifest does not register the gjalla
-MCP server (`gjalla mcp serve --from-plugin`) yet -- the
+MCP server (`gjalla mcp serve`) yet -- the
 `agent-plugins.org` plugin schema this repo declares (`.codex-plugin/
 plugin.json`'s `$schema`) doesn't document an `mcpServers` key, and
 guessing one risks a manifest Codex silently ignores or rejects. Wire the

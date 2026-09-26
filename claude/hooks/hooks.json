@@ -43,7 +43,7 @@
           {
             "type": "command",
             "if": "Bash(git *)",
-            "command": "gjalla rules context --phase pre_commit --event PreToolUse --from-plugin",
+            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --phase pre_commit --event PreToolUse",
             "timeout": 5
           }
         ]
@@ -54,7 +54,7 @@
           {
             "type": "command",
             "if": "Bash(git *)",
-            "command": "gjalla rules context --phase pre_push --event PreToolUse --from-plugin",
+            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --phase pre_push --event PreToolUse",
             "timeout": 5
           }
         ]
@@ -64,7 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla rules context --event PreToolUse --agent claude-code --from-plugin",
+            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --event PreToolUse --agent claude-code",
             "timeout": 5
           }
         ]
