@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-start"
+            "command": "gjalla hook session-start",
+            "timeout": 3
           }
         ]
       }
@@ -29,7 +30,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-end"
+            "command": "gjalla hook session-end",
+            "timeout": 3
           }
         ]
       }

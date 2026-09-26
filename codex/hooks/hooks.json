@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-start --harness codex-cli"
+            "command": "gjalla hook session-start --harness codex-cli",
+            "timeout": 3
           }
         ]
       }
