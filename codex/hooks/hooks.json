@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-start --harness codex-cli"
+            "command": "gjalla hook session-start --harness codex-cli",
+            "timeout": 3
           }
         ]
       }
@@ -29,6 +30,38 @@
             "type": "command",
             "command": "gjalla hook session-end --harness codex-cli",
             "timeout": 3
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --phase pre_commit --event PreToolUse --agent codex-cli",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --phase pre_push --event PreToolUse --agent codex-cli",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --event PreToolUse --agent codex-cli",
+            "timeout": 5
           }
         ]
       }
