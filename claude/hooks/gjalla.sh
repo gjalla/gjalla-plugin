@@ -12,7 +12,8 @@
 #
 # A hook must never block or fail the agent: every failure here exits 0, except gjalla's own exit status.
 
-PATH="$HOME/.local/bin:$PATH"
+# Appended, and only when gjalla isn't already on PATH: the user's own gjalla always wins.
+command -v gjalla >/dev/null 2>&1 || PATH="$PATH:$HOME/.local/bin"
 export PATH
 remote="${CLAUDE_CODE_REMOTE:-}"
 start=0
@@ -25,7 +26,11 @@ if ! command -v gjalla >/dev/null 2>&1; then
   if [ "$remote" = "true" ] && [ "$start" = 1 ]; then
     t0=$(date +%s)
     lock="${TMPDIR:-/tmp}/gjalla-cli-install.lock"
-    if mkdir "$lock" 2>/dev/null; then
+    # A lock older than the hook timeout belongs to an install that was killed.
+    find "$lock" -maxdepth 0 -mmin +3 -exec rmdir {} \; 2>/dev/null
+    if ! mkdir "$lock" 2>/dev/null; then
+      install_status="busy"  # another session-start is installing
+    else
       spec="${GJALLA_CLI_SPEC:-gjalla}"
       if command -v uv >/dev/null 2>&1; then
         uv tool install -q "$spec" </dev/null >/dev/null 2>&1 || true
@@ -36,7 +41,11 @@ if ! command -v gjalla >/dev/null 2>&1; then
       rmdir "$lock" 2>/dev/null
     fi
     install_s=$(( $(date +%s) - t0 ))
-    if command -v gjalla >/dev/null 2>&1; then install_status="installed"; else install_status="install_failed"; fi
+    if command -v gjalla >/dev/null 2>&1; then
+      install_status="installed"
+    elif [ "$install_status" != "busy" ]; then
+      install_status="install_failed"
+    fi
   fi
 fi
 

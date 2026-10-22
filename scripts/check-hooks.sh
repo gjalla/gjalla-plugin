@@ -37,7 +37,28 @@ for f in claude/hooks/hooks.json codex/hooks/hooks.json cursor/hooks/hooks.json;
       echo "DRIFT in $f: the rows above call gjalla directly, not through hooks/gjalla.sh"
       fail=1
     fi
-    body=$(sed -E 's#sh \\"\$\{?CLAUDE_PLUGIN_ROOT\}?/hooks/gjalla\.sh\\" #gjalla #g' "$f")
+    sh -n claude/hooks/gjalla.sh || { echo "DRIFT: claude/hooks/gjalla.sh is missing or not valid sh"; fail=1; }
+    # Under dash, `sh <missing file>` exits 2, which blocks the tool call: every
+    # PreToolUse row must exit 0 first when the wrapper isn't there.
+    # shellcheck disable=SC2016  # the literal text in hooks.json, not an expansion
+    guard='[ -f \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" ] || exit 0; '
+    pre_rows=$(grep -c 'rules context' "$f" || true)
+    guarded=$(grep -cF -- "\"command\": \"$guard" "$f" || true)
+    if [ "$pre_rows" -ne 3 ] || [ "$guarded" -ne 3 ]; then
+      echo "DRIFT in $f: expected 3 rules-context rows, each starting with: $guard"
+      fail=1
+    fi
+    body=$(sed -E -e 's#\[ -f \\"\$\{CLAUDE_PLUGIN_ROOT\}/hooks/gjalla\.sh\\" \] \|\| exit 0; ##g' \
+      -e 's#sh \\"\$\{?CLAUDE_PLUGIN_ROOT\}?/hooks/gjalla\.sh\\" #gjalla #g' "$f")
+    # Whatever is left naming a script is a wrapper path that doesn't match.
+    if grep -E '\.sh' <<<"$body"; then
+      echo "DRIFT in $f: the rows above don't run \${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh"
+      fail=1
+    fi
+    if [ "$(grep -cE 'gjalla hook [a-z-]+ --harness claude-code"' <<<"$body" || true)" -ne 3 ]; then
+      echo "DRIFT in $f: every collector row must pass --harness claude-code"
+      fail=1
+    fi
   fi
 
   got=$(grep -oE 'gjalla hook [a-z-]+' <<<"$body" | sort -u || true)

@@ -51,6 +51,26 @@ perl -pi -e 's/sh \\"\$\{CLAUDE_PLUGIN_ROOT\}\/hooks\/gjalla\.sh\\" hook turn-en
 expect fail "claude row calling gjalla without the wrapper"
 
 fresh
+perl -pi -e 's/hooks\/gjalla\.sh\\" rules context --phase pre_push/hooks\/gjala.sh\\" rules context --phase pre_push/' "$tmp/tree/claude/hooks/hooks.json"
+expect fail "claude row with a misspelled wrapper path"
+
+fresh
+perl -pi -e 's/\[ -f \\"\$\{CLAUDE_PLUGIN_ROOT\}\/hooks\/gjalla\.sh\\" \] \|\| exit 0; (GJALLA_FROM_PLUGIN=1 sh \\"\$\{CLAUDE_PLUGIN_ROOT\}\/hooks\/gjalla\.sh\\" rules context --phase pre_commit)/$1/' "$tmp/tree/claude/hooks/hooks.json"
+expect fail "claude rules-context row without the missing-wrapper guard"
+
+fresh
+perl -ni -e 'print unless /--phase pre_push/' "$tmp/tree/claude/hooks/hooks.json"
+expect fail "claude rules-context row removed"
+
+fresh
+perl -pi -e 's/hook turn-end --harness claude-code/hook turn-end/' "$tmp/tree/claude/hooks/hooks.json"
+expect fail "claude collector row without --harness"
+
+fresh
+rm "$tmp/tree/claude/hooks/gjalla.sh"
+expect fail "claude wrapper script missing"
+
+fresh
 perl -ni -e 'print unless /gjalla attest add/' "$tmp/tree/codex/hooks/hooks.json"
 expect fail "codex missing commit-capture row"
 
