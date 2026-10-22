@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-start",
-            "timeout": 3
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" hook session-start --harness claude-code",
+            "timeout": 120
           }
         ]
       }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook turn-end",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" hook turn-end --harness claude-code",
             "async": true
           }
         ]
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gjalla hook session-end",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" hook session-end --harness claude-code",
             "timeout": 3
           }
         ]
@@ -43,7 +43,7 @@
           {
             "type": "command",
             "if": "Bash(git *)",
-            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --phase pre_commit --event PreToolUse",
+            "command": "GJALLA_FROM_PLUGIN=1 sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" rules context --phase pre_commit --event PreToolUse",
             "timeout": 5
           }
         ]
@@ -54,7 +54,7 @@
           {
             "type": "command",
             "if": "Bash(git *)",
-            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --phase pre_push --event PreToolUse",
+            "command": "GJALLA_FROM_PLUGIN=1 sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" rules context --phase pre_push --event PreToolUse",
             "timeout": 5
           }
         ]
@@ -64,7 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "GJALLA_FROM_PLUGIN=1 gjalla rules context --event PreToolUse --agent claude-code",
+            "command": "GJALLA_FROM_PLUGIN=1 sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" rules context --event PreToolUse --agent claude-code",
             "timeout": 5
           }
         ]
@@ -76,7 +76,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'p=$(cat); case \"$p\" in *\"git commit\"*|*\"git\"*\"commit\"*) printf %s \"$p\" | gjalla attest add --from-hook --agent claude-code 2>/dev/null || true;; esac'"
+            "command": "sh -c 'p=$(cat); case \"$p\" in *\"git commit\"*|*\"git\"*\"commit\"*) printf %s \"$p\" | sh \"$CLAUDE_PLUGIN_ROOT/hooks/gjalla.sh\" attest add --from-hook --agent claude-code 2>/dev/null || true;; esac'"
           }
         ]
       }

@@ -31,7 +31,7 @@ fresh
 expect pass "shipped tree passes"
 
 fresh
-perl -ni -e 'print unless /gjalla attest add/' "$tmp/tree/claude/hooks/hooks.json"
+perl -ni -e 'print unless /attest add/' "$tmp/tree/claude/hooks/hooks.json"
 expect fail "claude missing commit-capture row"
 
 fresh
@@ -45,6 +45,10 @@ expect fail "claude commit-capture row with --user"
 fresh
 perl -pi -e 's/case \\"\$p\\" in \*\\"git commit\\"\*\|/case \\"\$p\\" in /' "$tmp/tree/claude/hooks/hooks.json"
 expect fail "claude commit-capture wrapper edited"
+
+fresh
+perl -pi -e 's/sh \\"\$\{CLAUDE_PLUGIN_ROOT\}\/hooks\/gjalla\.sh\\" hook turn-end/gjalla hook turn-end/' "$tmp/tree/claude/hooks/hooks.json"
+expect fail "claude row calling gjalla without the wrapper"
 
 fresh
 perl -ni -e 'print unless /gjalla attest add/' "$tmp/tree/codex/hooks/hooks.json"
