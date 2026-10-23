@@ -9,6 +9,8 @@
 # In a cloud session, session-start also writes ~/.gjalla/plugin-status.json in the background: CLI version, install
 # result, destination host, where the key came from, and HTTP status codes for the ingest policy endpoint with and
 # without the key. No key or content is written. `cat ~/.gjalla/plugin-status.json` in the session reads it.
+# The CLI's session-start (local and cloud) writes the session's entrypoint, app (claude-code or cowork) and which key
+# its data uses to the same file first; the cloud probe keeps those fields.
 #
 # A hook must never block or fail the agent: every failure here exits 0, except gjalla's own exit status.
 
@@ -82,9 +84,11 @@ if [ "$remote" = "true" ] && [ "$start" = 1 ]; then
     fi
     version=$(gjalla --version 2>/dev/null | sed 's/.*version //')
     host=$(printf '%s' "$url" | sed 's#^[a-z]*://##; s#/.*##')
-    printf '{"at":"%s","remote":true,"env_type":"%s","cli":"%s","install":"%s","install_s":%s,"host":"%s","key_source":"%s","policy_no_key":"%s","policy_with_key":"%s","hook_rc":%s}\n' \
+    # Keep the fields the CLI's session-start just wrote (entrypoint, app, session_key): one flat JSON line.
+    cli_fields=$(sed -n 's/^{\("entrypoint".*\)}$/,\1/p' "$dir/plugin-status.json" 2>/dev/null | head -1)
+    printf '{"at":"%s","remote":true,"env_type":"%s","cli":"%s","install":"%s","install_s":%s,"host":"%s","key_source":"%s","policy_no_key":"%s","policy_with_key":"%s","hook_rc":%s%s}\n' \
       "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE:-}" "${version:-none}" "$install_status" \
-      "$install_s" "$host" "$key_source" "${no_key:-000}" "$with_key" "$rc" > "$dir/plugin-status.json" 2>/dev/null
+      "$install_s" "$host" "$key_source" "${no_key:-000}" "$with_key" "$rc" "$cli_fields" > "$dir/plugin-status.json" 2>/dev/null
   ) </dev/null >/dev/null 2>&1 &
 fi
 

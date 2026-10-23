@@ -65,6 +65,13 @@ endpoint without and with the key: `000` is blocked by the network setting,
 `401` is reachable without a key, `200` with the key means it works. It never
 records the key.
 
+On every machine, local too, the same file records the session's
+`entrypoint`, its `app` (`claude-code` or `cowork`) and `session_key`: which
+key its data is sent with (`cowork key (env)`, `cowork key (config)` or
+`default key`). A Cowork session uses `GJALLA_COWORK_API_KEY` (with
+`GJALLA_COWORK_API_URL`), else `cowork_api_key` (and `cowork_api_url`) in
+`~/.gjalla/config.yaml`, so it lands in that key's space.
+
 ## Skills, rules, and memory
 
 Not part of this plugin. Skills come from `npx skills add gjalla/engineering`;
