@@ -43,7 +43,7 @@ A user who also ran `gjalla setup hooks` has the same commit-capture row
 at user level; the CLI records a commit once, so both may be installed.
 
 Claude Code also registers the gjalla MCP server
-(`gjalla mcp serve --from-plugin`) for context, memory and rules tools --
+(`gjalla mcp serve`, with `GJALLA_FROM_PLUGIN=1`) for context, memory and rules tools --
 empty (no tools registered) when memory is off, or when the repo already
 has its own `gjalla` entry in `.mcp.json`. Codex's plugin does not
 register it yet -- see `codex/README.md`.
@@ -70,6 +70,13 @@ gjalla auth login
 Then install the plugin for your harness (Claude Code: `claude plugin add
 gjalla`; Codex: install then trust via `/hooks`, see `codex/README.md`).
 Cursor isn't published to the marketplace yet — see `cursor/README.md`.
+
+## Keeping harnesses in sync
+
+The three collector commands are identical in `claude/`, `codex/` and `cursor/`
+`hooks/hooks.json`; event names and the schema wrapper differ per harness.
+`scripts/check-hooks.sh` enforces this, and CI runs `scripts/check-hooks-test.sh`
+on every pull request.
 
 ## License
 

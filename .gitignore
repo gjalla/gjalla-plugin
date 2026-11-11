@@ -7,12 +7,10 @@ __pycache__/
 *.log
 .gjalla/
 /.mcp.json
-/scripts/
+/scripts/gjalla-attestation-check.sh
+/scripts/gjalla-post-commit-upload.sh
 /CLAUDE.md
 *.pem
-.gjalla/.platform/
-.gjalla/changes/
-.gjalla/.loop-override
 gjalla/
 .entire/
 .agents/

@@ -1,14 +1,7 @@
 # gjalla (Codex CLI)
 
-Observability for your coding agent sessions. Four hooks, all shelling
-out to the `gjalla` CLI:
-
-| Event | Hook | Command |
-|---|---|---|
-| Session starts (`startup`, `resume`, `clear`, `compact`) | `SessionStart` | `gjalla hook session-start --harness codex-cli` |
-| End of each turn | `Stop` (async) | `gjalla hook turn-end --harness codex-cli` |
-| Session ends | `SessionEnd` (3s budget) | `gjalla hook session-end --harness codex-cli` |
-| After each `git commit` | `PostToolUse` (matcher `Bash`) | `gjalla attest add --from-hook --agent codex-cli` |
+Observability for your coding agent sessions. The hooks all shell out to
+the `gjalla` CLI; see the [hooks table in the root README](../README.md#the-hooks).
 
 The CLI is the collector — see the [root README](../README.md) for exactly
 what is and isn't sent: user and assistant text, tool names and inputs,
@@ -44,7 +37,7 @@ gjalla auth login
 ## Trusting the plugin's hooks
 
 Codex does not auto-trust plugin-bundled hooks. After installing this
-plugin, run `/hooks` in the Codex CLI, find the four `gjalla` entries
+plugin, run `/hooks` in the Codex CLI, find the `gjalla` entries
 (they'll show as "untrusted, pending review"), and trust them. Until you
 do, Codex silently skips them — including under `codex exec`, which does
 not prompt (see [openai/codex#46210](https://github.com/openai/codex/issues/46210)).
