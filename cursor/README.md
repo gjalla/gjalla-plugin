@@ -1,13 +1,8 @@
 # gjalla (Cursor)
 
-Observability for your coding agent sessions. Three hooks, all shelling
-out to the `gjalla` CLI:
-
-| Event | Hook | Command |
-|---|---|---|
-| A new composer conversation starts | `sessionStart` (fire-and-forget) | `gjalla hook session-start` |
-| The agent loop ends | `stop` | `gjalla hook turn-end` |
-| A composer conversation ends | `sessionEnd` (fire-and-forget) | `gjalla hook session-end` |
+Observability for your coding agent sessions. Three hooks (`sessionStart`,
+`stop`, `sessionEnd`), all shelling out to the `gjalla` CLI; see the
+[hooks table in the root README](../README.md#the-hooks).
 
 The CLI is the collector — see the [root README](../README.md) for exactly
 what is and isn't sent.

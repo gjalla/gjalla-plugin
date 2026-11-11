@@ -5,15 +5,13 @@
     "email": "hello@gjalla.io"
   },
   "metadata": {
-    "description": "Observability for your coding agent sessions.",
-    "version": "0.1.0"
+    "description": "Observability for your coding agent sessions."
   },
   "plugins": [
     {
       "name": "gjalla",
       "source": "./claude",
-      "description": "Observability for your coding agent sessions. Session and commit telemetry, synced to gjalla cloud automatically via four hooks.",
-      "version": "0.1.0",
+      "description": "Observability for your coding agent sessions. Session and commit telemetry, synced to gjalla cloud automatically.",
       "author": {
         "name": "gjalla, Inc."
       },

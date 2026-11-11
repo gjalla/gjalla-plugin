@@ -6,14 +6,8 @@ no manual instrumentation, no commands to run.
 
 ## What it collects
 
-Four hooks, all shelling out to the `gjalla` CLI:
-
-| Event | Hook | Command |
-|---|---|---|
-| Session starts (`startup`, `resume`, `clear`, `compact`) | `SessionStart` | `gjalla hook session-start --harness claude-code` |
-| End of each agent turn | `Stop` (async) | `gjalla hook turn-end --harness claude-code` |
-| Session ends | `SessionEnd` | `gjalla hook session-end --harness claude-code` |
-| After each `git commit` | `PostToolUse` (matcher `Bash`) | `gjalla attest add --from-hook --agent claude-code` |
+The hooks all shell out to the `gjalla` CLI; see the
+[hooks table in the root README](../README.md#the-hooks).
 
 The CLI is the collector: it parses the transcript, posts trimmed session
 deltas (user/assistant text, tool names and inputs, tool result sizes and
@@ -71,8 +65,3 @@ key its data is sent with (`cowork key (env)`, `cowork key (config)` or
 `default key`). A Cowork session uses `GJALLA_COWORK_API_KEY` (with
 `GJALLA_COWORK_API_URL`), else `cowork_api_key` (and `cowork_api_url`) in
 `~/.gjalla/config.yaml`, so it lands in that key's space.
-
-## Skills, rules, and memory
-
-Not part of this plugin. Skills come from `npx skills add gjalla/engineering`;
-context/memory via the MCP server comes from the `gjalla-onboard` skill.

@@ -1,0 +1,11 @@
+name: check-hooks
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check-hooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/check-hooks-test.sh
