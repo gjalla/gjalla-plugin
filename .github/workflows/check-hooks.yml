@@ -9,3 +9,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: scripts/check-hooks-test.sh
+
+  # The self-host CLI install: gjalla-install.sh on Linux, gjalla-install.ps1
+  # (started from Git Bash, as Claude Code runs hooks there) on Windows.
+  install-cli:
+    name: install-cli (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/install-cli-test.sh
+        shell: bash

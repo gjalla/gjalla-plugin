@@ -2,6 +2,8 @@
 # Runs the gjalla CLI for a plugin hook: sh gjalla.sh <gjalla args...>
 #
 # Local machines: runs `gjalla` if it is installed, and does nothing if it is not (setup is `pip install gjalla`).
+# Self-hosted installs (the plugin carries gjalla-install.json): session-start installs the standalone binary from
+# the server in the background (gjalla-install.sh, or gjalla-install.ps1 on native Windows).
 # Cloud sessions (Claude Code on the web, Cowork cloud; CLAUDE_CODE_REMOTE=true): the container starts without the
 # CLI, so `hook session-start` installs it first (uv tool install, about 8 s, once per container). Other hooks never
 # install; they no-op until the CLI is there. Pin a version with GJALLA_CLI_SPEC (default: gjalla, the latest).
@@ -20,6 +22,22 @@ export PATH
 remote="${CLAUDE_CODE_REMOTE:-}"
 start=0
 [ "$1" = "hook" ] && [ "$2" = "session-start" ] && start=1
+
+# Self-hosted installs: the plugin carries gjalla-install.json (its host is the trust anchor). session-start installs
+# or upgrades the standalone CLI binary from that host in the background, so the hook's budget holds; the session
+# after the install has the CLI. The plugin root is this script's own location, never an env var.
+root=$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)
+if [ "$start" = 1 ] && [ "$remote" != "true" ] && [ -f "$root/gjalla-install.json" ]; then
+  mkdir -p "$HOME/.gjalla" 2>/dev/null
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)  # native Windows (Git Bash): the native installer
+      powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass \
+        -File "$(cygpath -w "$root/hooks/gjalla-install.ps1")" -PluginRoot "$(cygpath -w "$root")" \
+        </dev/null >/dev/null 2>"$HOME/.gjalla/cli-install.log" & ;;
+    *)
+      sh "$root/hooks/gjalla-install.sh" "$root" </dev/null >/dev/null 2>"$HOME/.gjalla/cli-install.log" & ;;
+  esac
+fi
 
 install_status="present"
 install_s=0
