@@ -3,7 +3,7 @@
 #
 # Local machines: runs `gjalla` if it is installed, and does nothing if it is not (setup is `pip install gjalla`).
 # Self-hosted installs (the plugin carries gjalla-install.json): session-start installs the standalone binary from
-# the server in the background (gjalla-install.sh, or gjalla-install.ps1 on native Windows).
+# the server in the background (gjalla-install.sh, on Linux/WSL and on native Windows under Git Bash).
 # Cloud sessions (Claude Code on the web, Cowork cloud; CLAUDE_CODE_REMOTE=true): the container starts without the
 # CLI, so `hook session-start` installs it first (uv tool install, about 8 s, once per container). Other hooks never
 # install; they no-op until the CLI is there. Pin a version with GJALLA_CLI_SPEC (default: gjalla, the latest).
@@ -28,15 +28,14 @@ start=0
 # after the install has the CLI. The plugin root is this script's own location, never an env var.
 root=$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)
 if [ "$start" = 1 ] && [ "$remote" != "true" ] && [ -f "$root/gjalla-install.json" ]; then
-  mkdir -p "$HOME/.gjalla" 2>/dev/null
-  case "$(uname -s 2>/dev/null)" in
-    MINGW*|MSYS*|CYGWIN*)  # native Windows (Git Bash): the native installer
-      powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass \
-        -File "$(cygpath -w "$root/hooks/gjalla-install.ps1")" -PluginRoot "$(cygpath -w "$root")" \
-        </dev/null >/dev/null 2>"$HOME/.gjalla/cli-install.log" & ;;
-    *)
-      sh "$root/hooks/gjalla-install.sh" "$root" </dev/null >/dev/null 2>"$HOME/.gjalla/cli-install.log" & ;;
-  esac
+  pinned=$(sed -n 's/.*"cli_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$root/gjalla-install.json" | head -1)
+  installed=$(awk '{print $1; exit}' "$HOME/.gjalla/cli-binary-version" 2>/dev/null)
+  # The usual case, the pinned version already installed, starts no process.
+  if [ -z "$pinned" ] || [ "$pinned" != "$installed" ] \
+    || { [ ! -e "$HOME/.local/bin/gjalla" ] && [ ! -e "$HOME/.local/bin/gjalla.exe" ]; }; then
+    mkdir -p "$HOME/.gjalla" 2>/dev/null
+    sh "$root/hooks/gjalla-install.sh" "$root" </dev/null >/dev/null 2>"$HOME/.gjalla/cli-install.log" &
+  fi
 fi
 
 install_status="present"

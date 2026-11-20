@@ -39,14 +39,19 @@ breaks a session.
 ## Self-hosted installs
 
 A self-hosted server serves this plugin per install, with a
-`gjalla-install.json` at the plugin root (written by the server's
-`install.sh`). The file is the trust anchor for the host: nothing in the
-environment can change where the CLI comes from.
+`gjalla-install.json` at the plugin root. The server's `install.sh` is its
+only writer; the schema is in the self-host spec (W8). The file is the trust
+anchor: nothing in the environment can change where the CLI comes from or
+which binary is accepted.
 
 ```json
 {
   "host": "https://gjalla.example.internal",
-  "cli_version": "0.11.6"
+  "cli_version": "0.11.6",
+  "sha256": {
+    "linux-x64": "<hex>",
+    "win-x64": "<hex>"
+  }
 }
 ```
 
@@ -54,20 +59,29 @@ environment can change where the CLI comes from.
 
 When that file is present, `SessionStart` installs the standalone `gjalla`
 binary in the background (the session after the install has it), and
-upgrades it when `cli_version` changes:
+upgrades it when `cli_version` changes. When the pinned version is already
+installed it starts nothing.
 
-- Downloads `<host>/downloads/gjalla-<cli_version>-<os>-<arch>` (`linux-x64`
-  for WSL, `win-x64.exe` for native Windows) and its `.sha256` beside it, and
-  refuses the binary on a checksum mismatch. `host` must be `https://`.
-- Installs to `~/.local/bin/gjalla` (`%USERPROFILE%\.local\bin\gjalla.exe` on
-  Windows, added to the user `PATH`), recording the version in
-  `~/.gjalla/cli-binary-version`. A `gjalla` it didn't install (pip, uv, MDM)
-  is never replaced.
-- Linux/WSL: `hooks/gjalla-install.sh` (curl or wget). Native Windows:
-  `hooks/gjalla-install.ps1` (Windows PowerShell, Windows certificate store),
-  started with `-ExecutionPolicy Bypass`; a Group Policy that forces
-  `AllSigned` blocks it, and then the CLI is installed by MDM instead.
+- One installer, `hooks/gjalla-install.sh`, on Linux/WSL and on native
+  Windows (Git Bash). It downloads `<host>/downloads/gjalla-<cli_version>-<platform>`
+  (`linux-x64`, or `win-x64.exe`) with curl, https only (redirects too), and
+  installs it only if it matches the manifest's `sha256` for the platform and
+  runs (`--version`). No entry for the platform means no install. On Windows
+  it uses Windows' own `curl.exe`, which trusts the Windows certificate store
+  (Git Bash's curl uses its own CA bundle).
+- Installs to `~/.local/bin/gjalla` (`%USERPROFILE%\.local\bin\gjalla.exe`) and
+  records `<version> <sha256>` in `~/.gjalla/cli-binary-version`. It replaces
+  a binary there only when its hash is the recorded one, so a `gjalla` from
+  pip, pipx, uv or MDM is never overwritten.
+- `PATH`: the hooks find `~/.local/bin` themselves. On Windows the installer
+  also adds it to the user `PATH` (`hooks/add-to-user-path.ps1`), so git hooks
+  and new terminals find `gjalla` (run with `-ExecutionPolicy Bypass`; a
+  Group Policy forcing `AllSigned` blocks only this step). On WSL, Ubuntu's `~/.profile` adds
+  `~/.local/bin` for new login shells once it exists.
 - The last result is in `~/.gjalla/cli-install.log`.
+- The binary unpacks itself once per version under the user cache dir; old
+  versions' unpack dirs are not removed yet (the CLI will clean them up later,
+  keeping the current and previous versions).
 
 ### Remote MCP instead of a local `gjalla mcp serve`
 
@@ -90,18 +104,25 @@ managed-settings `env` block (`GJALLA_API_KEY`) the per-install
 ```
 
 The server's `install.sh` writes this entry in place of the default stdio
-one; the default in this repo stays `gjalla mcp serve`. `X-Gjalla-Person`
-comes only from `CLAUDE_CODE_USER_EMAIL` here (the CLI's `.claude.json`
-fallback doesn't apply to a remote server). The Claude Code docs
-don't say in so many words that managed `env` reaches this expansion: the
-canary confirms the MCP server connects before a wider rollout.
+one; the default in this repo stays `gjalla mcp serve`.
+
+- `X-Gjalla-Person` is read by the server once W5a (am-i-doing-it PR #632)
+  merges; until then it is ignored.
+- Pilot limitation: with remote MCP, a person without `CLAUDE_CODE_USER_EMAIL`
+  has no identity on MCP calls. The `GJALLA_MANAGED` fallback (`.claude.json`)
+  runs only in the local CLI, and the server treats the empty header as
+  absent.
+- The Claude Code docs don't say in so many words that managed `env` reaches
+  this expansion. The canary checks both that the MCP server connects and
+  that MCP calls carry the person's identity.
 
 ### Native Windows needs Git for Windows
 
 Claude Code runs `command` hooks through Git Bash on Windows (PowerShell only
 when Git Bash isn't installed). Every row here, and the commit-capture row's
-`sh -c` wrapper, runs `sh`, so native Windows needs Git for Windows, which
-ships both. Without it the hooks don't run (they never block a session).
+`sh -c` wrapper, and the CLI installer run `sh`, so native Windows needs Git
+for Windows, which ships both. Without it the hooks don't run (they never
+block a session).
 
 ## Cloud sessions (Claude Code on the web, Cowork)
 
