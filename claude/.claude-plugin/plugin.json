@@ -19,7 +19,9 @@
         "GJALLA_API_URL": "${GJALLA_API_URL:-}",
         "GJALLA_API_KEY": "${GJALLA_API_KEY:-}",
         "CLAUDE_CODE_USER_EMAIL": "${CLAUDE_CODE_USER_EMAIL:-}",
-        "GJALLA_MANAGED": "${GJALLA_MANAGED:-}"
+        "GJALLA_MANAGED": "${GJALLA_MANAGED:-}",
+        "GJALLA_TEAM": "${GJALLA_TEAM:-}",
+        "CLAUDE_CONFIG_DIR": "${CLAUDE_CONFIG_DIR:-}"
       }
     }
   }

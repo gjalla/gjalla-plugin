@@ -92,8 +92,8 @@ if [ "$remote" = "true" ] && [ "$start" = 1 ]; then
     fi
     if [ -z "$url" ]; then
       if [ -f "$root/gjalla-install.json" ]; then
-        # A per-install plugin (self-host): its host or nothing, never a default.
-        url=$(sed -n 's/.*"host"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$root/gjalla-install.json" | head -1)
+        # A per-install plugin (self-host): its host as the installer validates it, or nothing, never a default.
+        url=$(sh "$root/hooks/gjalla-install.sh" "$root" host 2>/dev/null)
       else
         # No install file: the SaaS plugin, so the CLI's own default host (config/settings.py).
         url="https://gjalla.io"

@@ -1,5 +1,6 @@
 #!/bin/sh
 # Installs or upgrades the standalone gjalla CLI binary: sh gjalla-install.sh <plugin root>
+# Prints the manifest's validated host instead:          sh gjalla-install.sh <plugin root> host
 #
 # Self-hosted installs only: runs when the plugin carries gjalla-install.json, started in the background by
 # gjalla.sh at session start. One installer for Linux/WSL and native Windows (Git Bash, which the hooks need there
@@ -18,6 +19,14 @@ fail() { echo "gjalla-install: $*" >&2; exit 1; }
 field() { sed -n "s/.*\"$1\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p" "$manifest" | head -1; }
 sha256() { sha256sum "$1" | awk '{print $1}'; }
 
+host=$(field host)
+host=${host%/}
+# https only; plain http just for a loopback host (the CLI's rule too: plugin_install.installed_plugin_url).
+printf '%s' "$host" | grep -Eq '^(https://[A-Za-z0-9.-]+(:[0-9]+)?|http://(127\.0\.0\.1|localhost|\[::1\])(:[0-9]+)?)$' \
+  || fail "host in gjalla-install.json must be an https origin: '$host'"
+# `gjalla-install.sh <plugin root> host`: print the validated host and stop (gjalla.sh's status probe).
+[ "${2:-}" = host ] && { printf '%s\n' "$host"; exit 0; }
+
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
     platform=win-x64; exe=.exe
@@ -30,13 +39,8 @@ case "$(uname -s)" in
   *) fail "no binary is built for $(uname -s)" ;;
 esac
 
-host=$(field host)
-host=${host%/}
 version=$(field cli_version)
 expected=$(field "$platform" | tr 'A-F' 'a-f')
-# https only; plain http just for a loopback host.
-printf '%s' "$host" | grep -Eq '^(https://[A-Za-z0-9.-]+(:[0-9]+)?|http://(127\.0\.0\.1|localhost)(:[0-9]+)?)$' \
-  || fail "host in gjalla-install.json must be an https origin: '$host'"
 printf '%s' "$version" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z.+-]{0,31}$' || fail "bad cli_version: '$version'"
 printf '%s' "$expected" | grep -Eq '^[0-9a-f]{64}$' || fail "gjalla-install.json has no sha256 for $platform; not installing"
 

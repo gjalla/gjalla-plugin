@@ -2,7 +2,7 @@
 # The cloud-session probe's host (claude/hooks/gjalla.sh -> ~/.gjalla/plugin-status.json):
 #   no gjalla-install.json            the SaaS plugin: the CLI's default host, gjalla.io
 #   gjalla-install.json with no host  a self-host plugin: no host, both probes skipped
-#   gjalla-install.json with a host   that host
+#   gjalla-install.json with a host   that host, if gjalla-install.sh accepts it, else none
 #   GJALLA_API_URL + GJALLA_API_KEY   that URL, whatever the install file says
 # A sandboxed HOME and a copy of the plugin; `gjalla` and `curl` are stubs, so nothing leaves the machine.
 set -euo pipefail
@@ -43,6 +43,9 @@ probe() {
 INSTALL_JSON='' probe saas-default gjalla.io 401
 INSTALL_JSON='{"host":""}' probe selfhost-no-host '' skipped
 INSTALL_JSON='{"host":"https://gjalla.corp.example"}' probe selfhost-host gjalla.corp.example 401
+# The host is validated by gjalla-install.sh's rule (https, or http only to loopback): an invalid one is never probed.
+INSTALL_JSON='{"host":"http://gjalla.corp.example"}' probe selfhost-plain-http '' skipped
+INSTALL_JSON='{"host":"http://127.0.0.1:8080"}' probe selfhost-loopback 127.0.0.1:8080 401
 # The CLI honours GJALLA_API_URL only together with GJALLA_API_KEY; the probe follows it.
 INSTALL_JSON='{"host":"https://gjalla.corp.example"}' probe env-wins gjalla.env.example 401 \
   GJALLA_API_URL=https://gjalla.env.example GJALLA_API_KEY=test-key
