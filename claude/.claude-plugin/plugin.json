@@ -15,7 +15,11 @@
       "command": "gjalla",
       "args": ["mcp", "serve"],
       "env": {
-        "GJALLA_FROM_PLUGIN": "1"
+        "GJALLA_FROM_PLUGIN": "1",
+        "GJALLA_API_URL": "${GJALLA_API_URL:-}",
+        "GJALLA_API_KEY": "${GJALLA_API_KEY:-}",
+        "CLAUDE_CODE_USER_EMAIL": "${CLAUDE_CODE_USER_EMAIL:-}",
+        "GJALLA_MANAGED": "${GJALLA_MANAGED:-}"
       }
     }
   }
