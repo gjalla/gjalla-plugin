@@ -144,8 +144,11 @@ To check a cloud session: `cat ~/.gjalla/plugin-status.json`. It records the
 CLI version and install result, the destination host, where the key came
 from (`env`, `config`, `none`), and the HTTP status of the ingest policy
 endpoint without and with the key: `000` is blocked by the network setting,
-`401` is reachable without a key, `200` with the key means it works. It never
-records the key.
+`401` is reachable without a key, `200` with the key means it works. The host
+is `GJALLA_API_URL`, else `api_url` in `~/.gjalla/config.yaml`, else the
+plugin's `gjalla-install.json` host (a self-hosted install: with no host there,
+both probes are `skipped`), else the hosted service the CLI defaults to. It
+never records the key.
 
 On every machine, local too, the same file records the session's
 `entrypoint`, its `app` (`claude-code` or `cowork`) and `session_key`: which
