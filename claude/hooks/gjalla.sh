@@ -90,12 +90,22 @@ if [ "$remote" = "true" ] && [ "$start" = 1 ]; then
     if [ -z "$url" ] || [ -z "${GJALLA_API_KEY:-}" ]; then
       url=$(sed -n 's/^api_url: *//p' "$dir/config.yaml" 2>/dev/null | head -1)
     fi
-    url="${url:-https://gjalla.io}"
+    if [ -z "$url" ]; then
+      if [ -f "$root/gjalla-install.json" ]; then
+        # A per-install plugin (self-host): its host as the installer validates it, or nothing, never a default.
+        url=$(sh "$root/hooks/gjalla-install.sh" "$root" host 2>/dev/null)
+      else
+        # No install file: the SaaS plugin, so the CLI's own default host (config/settings.py).
+        url="https://gjalla.io"
+      fi
+    fi
+    # No host (an install file without one): nothing to probe.
     policy="${url%/}/api/ingest/v1/policy"
     # Without a key: 401 means reachable; 000 means blocked (egress allowlist); 200 means a proxy added credentials.
-    no_key=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$policy" </dev/null 2>/dev/null)
+    no_key="skipped"
+    [ -n "$url" ] && no_key=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$policy" </dev/null 2>/dev/null)
     with_key="skipped"
-    if [ -n "${GJALLA_API_KEY:-}" ]; then
+    if [ -n "$url" ] && [ -n "${GJALLA_API_KEY:-}" ]; then
       # The header goes through stdin, so the key never appears in a process argument list.
       with_key=$(printf 'x-api-key: %s\n' "$GJALLA_API_KEY" | curl -s -o /dev/null -w '%{http_code}' --max-time 5 -H @- "$policy" 2>/dev/null)
     fi

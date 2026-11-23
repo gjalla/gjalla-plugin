@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: scripts/check-hooks-test.sh
+      # The cloud-session probe's host selection (claude/hooks/gjalla.sh).
+      - run: bash scripts/probe-host-test.sh
 
   # The self-host CLI install (hooks/gjalla-install.sh): on Linux, and on
   # Windows under Git Bash, where Claude Code runs hooks.
