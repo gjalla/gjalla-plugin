@@ -92,15 +92,6 @@
             "timeout": 5
           }
         ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh -c 'p=$(cat); case \"$p\" in *\"git commit\"*|*\"git\"*\"commit\"*) printf %s \"$p\" | sh \"$CLAUDE_PLUGIN_ROOT/hooks/gjalla.sh\" attest add --from-hook --agent claude-code 2>/dev/null || true;; esac'"
-          }
-        ]
       }
     ]
   }
