@@ -30,21 +30,26 @@ expect() {
 fresh
 expect pass "shipped tree passes"
 
-fresh
-perl -ni -e 'print unless /attest add/' "$tmp/tree/claude/hooks/hooks.json"
-expect fail "claude missing commit-capture row"
+# A present commit-capture row is drift: add one to each tree and expect failure.
+add_row() {
+  python3 - "$1" "$2" <<'PY'
+import json, sys
+path, agent = sys.argv[1:]
+data = json.load(open(path))
+row = {"matcher": "Bash", "hooks": [{"type": "command", "command":
+       f"sh -c 'p=$(cat); printf %s \"$p\" | gjalla attest add --from-hook --agent {agent}'"}]}
+data["hooks"].setdefault("PostToolUse", []).append(row)
+json.dump(data, open(path, "w"), indent=2)
+PY
+}
 
 fresh
-perl -pi -e 's/--agent claude-code/--agent codex-cli/' "$tmp/tree/claude/hooks/hooks.json"
-expect fail "claude commit-capture row with wrong --agent"
+add_row "$tmp/tree/claude/hooks/hooks.json" claude-code
+expect fail "claude carrying a commit-capture row"
 
 fresh
-perl -pi -e 's/--from-hook --agent claude-code/--from-hook --agent claude-code --user/' "$tmp/tree/claude/hooks/hooks.json"
-expect fail "claude commit-capture row with --user"
-
-fresh
-perl -pi -e 's/case \\"\$p\\" in \*\\"git commit\\"\*\|/case \\"\$p\\" in /' "$tmp/tree/claude/hooks/hooks.json"
-expect fail "claude commit-capture wrapper edited"
+add_row "$tmp/tree/codex/hooks/hooks.json" codex-cli
+expect fail "codex carrying a commit-capture row"
 
 fresh
 perl -pi -e 's/sh \\"\$\{CLAUDE_PLUGIN_ROOT\}\/hooks\/gjalla\.sh\\" hook turn-end/gjalla hook turn-end/' "$tmp/tree/claude/hooks/hooks.json"
@@ -69,18 +74,6 @@ expect fail "claude collector row without --harness"
 fresh
 rm "$tmp/tree/claude/hooks/gjalla.sh"
 expect fail "claude wrapper script missing"
-
-fresh
-perl -ni -e 'print unless /gjalla attest add/' "$tmp/tree/codex/hooks/hooks.json"
-expect fail "codex missing commit-capture row"
-
-fresh
-perl -pi -e 's/--agent codex-cli/--agent claude-code/' "$tmp/tree/codex/hooks/hooks.json"
-expect fail "codex commit-capture row with wrong --agent"
-
-fresh
-perl -pi -e 's/--from-hook --agent codex-cli/--from-hook --agent codex-cli --user/' "$tmp/tree/codex/hooks/hooks.json"
-expect fail "codex commit-capture row with --user"
 
 fresh
 perl -pi -e 's/"command": "gjalla hook session-end --harness cursor"/"command": "gjalla hook session-end --harness cursor", "x": "gjalla attest add --from-hook --agent cursor"/' "$tmp/tree/cursor/hooks/hooks.json"

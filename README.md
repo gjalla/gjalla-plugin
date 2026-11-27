@@ -26,23 +26,22 @@ compactions, interrupts, and subagent boundaries.
 ## The hooks
 
 Every supported harness wires the same three collection points to the
-`gjalla` CLI (the collector). Claude Code and Codex wire a fourth, commit
-capture, plus the guardrail rows (`gjalla rules context`) and the gjalla
+`gjalla` CLI (the collector). Claude Code and Codex also wire
+the guardrail rows (`gjalla rules context`) and the gjalla
 MCP server:
 
 | Event | Command | Notes |
 |---|---|---|
-| Session start | `gjalla hook session-start` | drains the outbox, sweeps missed deltas, and (memory on) injects the shared instruction block |
+| Session start | `gjalla hook session-start` | drains the outbox, sweeps missed deltas, refreshes this repo's rules first (inline, up to 1.5s; skills in the background), and (memory on) injects the shared instruction block |
 | End of each turn | `gjalla hook turn-end` | posts the turn's delta; async where the harness supports it |
 | Session end | `gjalla hook session-end` | posts the final delta, `status: ended`, with the session's context makeup |
 | Before `git commit`/`git push` (Claude Code, Codex) | `gjalla rules context --phase pre_commit\|pre_push` | guardrails on: injects the rules that apply; off: silent |
 | Before every Bash command (Claude Code, Codex) | `gjalla rules context` (enforcement) | guardrails on: ask/deny for an enforced rule match; off: silent |
-| After each `git commit` (Claude Code, Codex) | `gjalla attest add --from-hook --agent <claude-code\|codex-cli>` | `PostToolUse` on `Bash`, pre-filtered for `git commit`; records HEAD for the session and nudges the agent to write the attestation when there is none |
 | Human needed (Claude Code) | `gjalla attention record --from-hook --agent claude-code` | `Notification`; records an attention event for the desktop app |
 | After plan approval (Claude Code) | `gjalla ledger mark spec-approved --from-hook --agent claude-code` | `PostToolUse` on `ExitPlanMode`; records the spec-approved milestone |
 
-A user who also ran `gjalla setup hooks` has the same commit-capture row
-at user level; the CLI records a commit once, so both may be installed.
+Commits are not a hook: the CLI reads them from the Claude Code and Codex
+session transcripts (including `git commit -q`).
 
 Claude Code also registers the gjalla MCP server
 (`gjalla mcp serve`, with `GJALLA_FROM_PLUGIN=1`) for context, memory and rules tools --
