@@ -70,7 +70,29 @@
         ]
       }
     ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" ] || exit 0; GJALLA_FROM_PLUGIN=1 sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" attention record --from-hook --agent claude-code",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" ] || exit 0; GJALLA_FROM_PLUGIN=1 sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" ledger mark spec-approved --from-hook --agent claude-code",
+            "timeout": 5
+          }
+        ]
+      },
       {
         "matcher": "Bash",
         "hooks": [

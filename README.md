@@ -38,6 +38,8 @@ MCP server:
 | Before `git commit`/`git push` (Claude Code, Codex) | `gjalla rules context --phase pre_commit\|pre_push` | guardrails on: injects the rules that apply; off: silent |
 | Before every Bash command (Claude Code, Codex) | `gjalla rules context` (enforcement) | guardrails on: ask/deny for an enforced rule match; off: silent |
 | After each `git commit` (Claude Code, Codex) | `gjalla attest add --from-hook --agent <claude-code\|codex-cli>` | `PostToolUse` on `Bash`, pre-filtered for `git commit`; records HEAD for the session and nudges the agent to write the attestation when there is none |
+| Human needed (Claude Code) | `gjalla attention record --from-hook --agent claude-code` | `Notification`; records an attention event for the desktop app |
+| After plan approval (Claude Code) | `gjalla ledger mark spec-approved --from-hook --agent claude-code` | `PostToolUse` on `ExitPlanMode`; records the spec-approved milestone |
 
 A user who also ran `gjalla setup hooks` has the same commit-capture row
 at user level; the CLI records a commit once, so both may be installed.

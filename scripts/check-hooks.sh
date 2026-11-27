@@ -12,6 +12,12 @@
 # `Bash`; CLI B7.4). Cursor carries no commit-capture row: no PostToolUse
 # shell command is confirmed for it.
 #
+# Claude Code alone also carries two rows the CLI's file-based install writes
+# for it: Notification -> `gjalla attention record` and PostToolUse on
+# ExitPlanMode -> `gjalla ledger mark spec-approved`. Codex and Cursor have
+# no equivalent events (no plan-mode tool, no attention notification) and
+# the CLI writes neither row for them, so they must not carry these.
+#
 # Claude Code runs every gjalla command through hooks/gjalla.sh (it installs
 # the CLI in cloud sessions). Its rows are compared with that wrapper read
 # as `gjalla`, and a row that calls `gjalla` directly is drift.
@@ -33,7 +39,7 @@ for f in claude/hooks/hooks.json codex/hooks/hooks.json cursor/hooks/hooks.json;
 
   body=$(cat "$f")
   if [ "$f" = claude/hooks/hooks.json ]; then
-    if grep -E '[" |]gjalla (hook|rules|attest) ' "$f"; then
+    if grep -E '[" |]gjalla (hook|rules|attest|attention|ledger) ' "$f"; then
       echo "DRIFT in $f: the rows above call gjalla directly, not through hooks/gjalla.sh"
       fail=1
     fi
@@ -43,11 +49,19 @@ for f in claude/hooks/hooks.json codex/hooks/hooks.json cursor/hooks/hooks.json;
     # shellcheck disable=SC2016  # the literal text in hooks.json, not an expansion
     guard='[ -f \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" ] || exit 0; '
     pre_rows=$(grep -c 'rules context' "$f" || true)
-    guarded=$(grep -cF -- "\"command\": \"$guard" "$f" || true)
+    guarded=$(grep -F -- "\"command\": \"$guard" "$f" | grep -c 'rules context' || true)
     if [ "$pre_rows" -ne 3 ] || [ "$guarded" -ne 3 ]; then
       echo "DRIFT in $f: expected 3 rules-context rows, each starting with: $guard"
       fail=1
     fi
+    for row in 'attention record --from-hook --agent claude-code' \
+              'ledger mark spec-approved --from-hook --agent claude-code'; do
+      want_row="\"command\": \"$guard"'GJALLA_FROM_PLUGIN=1 sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gjalla.sh\" '"$row\","
+      if [ "$(grep -cF -- "$want_row" "$f" || true)" -ne 1 ]; then
+        echo "DRIFT in $f: expected exactly one guarded GJALLA_FROM_PLUGIN=1 row for: gjalla $row"
+        fail=1
+      fi
+    done
     body=$(sed -E -e 's#\[ -f \\"\$\{CLAUDE_PLUGIN_ROOT\}/hooks/gjalla\.sh\\" \] \|\| exit 0; ##g' \
       -e 's#sh \\"\$\{?CLAUDE_PLUGIN_ROOT\}?/hooks/gjalla\.sh\\" #gjalla #g' "$f")
     # Whatever is left naming a script is a wrapper path that doesn't match.
@@ -65,6 +79,11 @@ for f in claude/hooks/hooks.json codex/hooks/hooks.json cursor/hooks/hooks.json;
   if [ "$got" != "$collector" ]; then
     echo "DRIFT in $f (collector commands):"
     diff <(echo "$collector") <(echo "$got") || true
+    fail=1
+  fi
+
+  if [ "$f" != claude/hooks/hooks.json ] && grep -qE 'gjalla (attention|ledger) ' "$f"; then
+    echo "DRIFT in $f: attention/ledger rows are Claude Code only"
     fail=1
   fi
 
@@ -90,6 +109,6 @@ for f in claude/hooks/hooks.json codex/hooks/hooks.json cursor/hooks/hooks.json;
 done
 
 if [ "$fail" -eq 0 ]; then
-  echo "OK: all hooks.json files invoke the same three collector commands; Claude Code and Codex carry the commit-capture row."
+  echo "OK: all hooks.json files invoke the same three collector commands; Claude Code and Codex carry the commit-capture row; Claude Code also carries the attention and spec-approved rows."
 fi
 exit $fail
